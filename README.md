@@ -1,5 +1,7 @@
 # 🧼 claude-code-scrubber🫧
 
+[![PyPI](https://img.shields.io/pypi/v/claude-code-scrubber)](https://pypi.org/project/claude-code-scrubber/)
+
 Scrub API keys, secrets, and personal information from Claude Code transcripts before publishing them to public repos.
 
 Inspired by [Simon Willison's claude-code-transcripts](https://github.com/simonw/claude-code-transcripts) — this tool sits between your raw session data and your public GitHub Pages, giving you peace of mind that you're not leaking credentials.

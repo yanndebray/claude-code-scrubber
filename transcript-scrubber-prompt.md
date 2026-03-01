@@ -122,7 +122,7 @@ claude-code-scrubber/
 ├── README.md
 ├── LICENSE (MIT)
 ├── src/
-│   └── transcript_scrub/
+│   └── claude-code-scrubber/
 │       ├── __init__.py
 │       ├── cli.py              # Click CLI entrypoint
 │       ├── config.py           # Configuration loading/management

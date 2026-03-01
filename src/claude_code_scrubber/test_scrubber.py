@@ -220,12 +220,12 @@ class TestHTMLScrubbing:
 
 class TestScrubReport:
     def test_summary_clean(self):
-        from transcript_scrub.scrubber import ScrubReport
+        from claude-code-scrubber.scrubber import ScrubReport
         r = ScrubReport()
         assert "No secrets" in r.summary()
 
     def test_summary_with_findings(self):
-        from transcript_scrub.scrubber import ScrubReport, Match
+        from claude-code-scrubber.scrubber import ScrubReport, Match
         r = ScrubReport(matches=[
             Match("test", "high", "xxx", "line 1", "***"),
             Match("test2", "medium", "yyy", "line 2", "***"),

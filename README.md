@@ -22,14 +22,14 @@ Inspired by [Simon Willison's claude-code-transcripts](https://github.com/simonw
 
 ```bash
 # With pip
-pip install transcript-scrub
+pip install claude-code-scrubber
 
 # With uv (no install needed)
-uvx transcript-scrub scan session.jsonl
+uvx claude-code-scrubber scan session.jsonl
 
 # From source
-git clone https://github.com/youruser/transcript-scrub
-cd transcript-scrub
+git clone https://github.com/yanndebray/claude-code-scrubber
+cd claude-code-scrubber
 pip install -e .
 ```
 
@@ -37,14 +37,14 @@ pip install -e .
 
 ```bash
 # 1. Scan first (dry-run) — see what would be scrubbed
-transcript-scrub scan my-session.jsonl -u $(whoami)
+claude-code-scrubber scan my-session.jsonl -u $(whoami)
 
 # 2. Scrub and write clean output
-transcript-scrub scrub my-session.jsonl -u $(whoami)
+claude-code-scrubber scrub my-session.jsonl -u $(whoami)
 # → writes my-session.scrubbed.jsonl
 
 # 3. Scrub HTML transcripts into an output directory
-transcript-scrub scrub transcripts/*.html -u $(whoami) -o clean/
+claude-code-scrubber scrub transcripts/*.html -u $(whoami) -o clean/
 ```
 
 ## Usage
@@ -53,13 +53,13 @@ transcript-scrub scrub transcripts/*.html -u $(whoami) -o clean/
 
 ```bash
 # Scan with verbose output showing every match
-transcript-scrub scan session.jsonl -u myuser -v
+claude-code-scrubber scan session.jsonl -u myuser -v
 
 # Scan only high-severity items
-transcript-scrub scan session.jsonl -s high
+claude-code-scrubber scan session.jsonl -s high
 
 # Scan multiple files
-transcript-scrub scan *.jsonl *.html
+claude-code-scrubber scan *.jsonl *.html
 ```
 
 Example output:
@@ -82,29 +82,29 @@ The `scan` command exits with code `1` if findings exist — useful in CI.
 
 ```bash
 # Write to a suffixed file (default: .scrubbed)
-transcript-scrub scrub session.jsonl -u myuser
+claude-code-scrubber scrub session.jsonl -u myuser
 # → session.scrubbed.jsonl
 
 # Write to an output directory
-transcript-scrub scrub session.jsonl -o clean/
+claude-code-scrubber scrub session.jsonl -o clean/
 
 # Overwrite originals (careful!)
-transcript-scrub scrub session.jsonl --in-place
+claude-code-scrubber scrub session.jsonl --in-place
 
 # Custom suffix
-transcript-scrub scrub session.jsonl --suffix .clean
+claude-code-scrubber scrub session.jsonl --suffix .clean
 ```
 
 ### `init` — Create a config file
 
 ```bash
-transcript-scrub init           # creates .transcript-scrub.json
-transcript-scrub init -f toml   # creates .transcript-scrub.toml
+claude-code-scrubber init           # creates .claude-code-scrubber.json
+claude-code-scrubber init -f toml   # creates .claude-code-scrubber.toml
 ```
 
 ## Configuration
 
-Create a `.transcript-scrub.json` (or `.toml`) in your project root:
+Create a `.claude-code-scrubber.json` (or `.toml`) in your project root:
 
 ```json
 {
@@ -147,7 +147,7 @@ Config files are auto-discovered by walking up from the current directory.
 claude-code-transcripts local -o transcripts/
 
 # 2. Scrub them
-transcript-scrub scrub transcripts/*.html -u $(whoami) -o docs/
+claude-code-scrubber scrub transcripts/*.html -u $(whoami) -o docs/
 
 # 3. Push to GitHub Pages
 git add docs/
@@ -160,8 +160,8 @@ git push
 ```yaml
 - name: Check transcripts for secrets
   run: |
-    pip install transcript-scrub
-    transcript-scrub scan docs/**/*.html -u runner -s high
+    pip install claude-code-scrubber
+    claude-code-scrubber scan docs/**/*.html -u runner -s high
 ```
 
 ## How it works

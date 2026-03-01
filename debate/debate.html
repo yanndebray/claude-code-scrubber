@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Branch Debate: Team vs Claude — claude-code-scrubber</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d1117;--surface:#161b22;--surface2:#1c2333;--surface3:#21283b;
+    --border:#30363d;--text:#e6edf3;--text-muted:#8b949e;
+    --team:#f97316;--team-bg:rgba(249,115,22,.1);--team-border:rgba(249,115,22,.3);
+    --claude:#3b82f6;--claude-bg:rgba(59,130,246,.1);--claude-border:rgba(59,130,246,.3);
+    --accent:#22c55e;--accent-bg:rgba(34,197,94,.1);--accent-border:rgba(34,197,94,.3);
+    --radius:12px;--radius-sm:8px;
+  }
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+  a{color:var(--claude);text-decoration:none}
+
+  /* Hero */
+  .hero{text-align:center;padding:80px 24px 60px;background:linear-gradient(180deg,#0d1117 0%,#131a27 100%);position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 40%,rgba(249,115,22,.06) 0%,transparent 50%),radial-gradient(circle at 70% 60%,rgba(59,130,246,.06) 0%,transparent 50%);animation:drift 20s ease-in-out infinite}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(-2%,1%)}}
+  .hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.02em;margin-bottom:16px;background:linear-gradient(135deg,var(--team),var(--claude));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .hero p{font-size:clamp(1rem,2vw,1.25rem);color:var(--text-muted);max-width:700px;margin:0 auto}
+  .hero .tagline{margin-top:24px;font-style:italic;color:var(--text-muted);font-size:.95rem}
+
+  /* Layout */
+  .container{max-width:1200px;margin:0 auto;padding:0 24px}
+  section{padding:60px 0}
+  .section-title{font-size:1.75rem;font-weight:700;margin-bottom:8px;text-align:center}
+  .section-subtitle{color:var(--text-muted);text-align:center;margin-bottom:40px;font-size:.95rem}
+
+  /* Agent Cards */
+  .agent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px}
+  .agent-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+  .agent-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+  .agent-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .agent-card.team::before{background:var(--team)}.agent-card.claude::before{background:var(--claude)}
+  .agent-name{font-size:1.35rem;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .agent-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+  .team .agent-dot{background:var(--team)}.claude .agent-dot{background:var(--claude)}
+  .agent-focus{font-size:.85rem;color:var(--text-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em}
+  .agent-contribution{font-size:.95rem;margin-bottom:16px;color:var(--text)}
+  .agent-stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+  .agent-stat{background:var(--surface2);border-radius:var(--radius-sm);padding:8px 14px;font-size:.85rem}
+  .agent-stat strong{font-weight:700}
+  .agent-quote{font-style:italic;font-size:.9rem;color:var(--text-muted);border-left:3px solid var(--border);padding-left:14px;line-height:1.5}
+  .team .agent-quote{border-color:var(--team)}.claude .agent-quote{border-color:var(--claude)}
+
+  /* Head-to-Head Table */
+  .h2h-table{width:100%;border-collapse:collapse;margin:0 auto;max-width:900px;font-size:.9rem}
+  .h2h-table th,.h2h-table td{padding:10px 16px;text-align:left;border-bottom:1px solid var(--border)}
+  .h2h-table th{background:var(--surface2);font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)}
+  .h2h-table td:first-child{font-weight:600;color:var(--text)}
+  .h2h-table tr:hover td{background:var(--surface2)}
+  .edge-team{color:var(--team);font-weight:700}.edge-claude{color:var(--claude);font-weight:700}.edge-split{color:var(--text-muted);font-style:italic}
+  .h2h-wrapper{overflow-x:auto}
+
+  /* Attack Matrix */
+  .matrix-wrapper{overflow-x:auto}
+  .matrix{display:grid;grid-template-columns:140px repeat(2,1fr);gap:2px;max-width:700px;margin:0 auto;background:var(--border);border-radius:var(--radius);overflow:hidden}
+  .matrix-cell{background:var(--surface);padding:16px;min-height:80px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:.85rem;cursor:default;transition:background .2s}
+  .matrix-header{background:var(--surface2);font-weight:700;font-size:.9rem;padding:14px;display:flex;align-items:center;justify-content:center;gap:6px}
+  .matrix-row-header{background:var(--surface2);font-weight:700;font-size:.9rem;justify-content:flex-start;padding-left:16px;gap:6px}
+  .matrix-empty{background:var(--surface3);color:var(--text-muted);font-style:italic;font-size:.8rem}
+  .matrix-attack{cursor:pointer;position:relative}
+  .matrix-attack:hover{background:var(--surface3)}
+  .matrix-attack .peek{font-weight:600;font-size:.8rem;line-height:1.4}
+  .attack-count{display:inline-block;background:rgba(255,255,255,.08);border-radius:20px;padding:2px 10px;font-size:.75rem;margin-top:6px;color:var(--text-muted)}
+
+  /* Attack Modal */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)}
+  .modal-overlay.active{display:flex}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);max-width:750px;width:100%;max-height:80vh;overflow-y:auto;padding:32px;position:relative}
+  .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;line-height:1;padding:4px}
+  .modal-close:hover{color:var(--text)}
+  .modal h3{font-size:1.2rem;margin-bottom:16px}
+  .modal .attack-item{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+  .modal .attack-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .modal .attack-label{font-weight:700;font-size:.9rem;margin-bottom:8px}
+  .modal blockquote{font-style:italic;font-size:.9rem;color:var(--text-muted);border-left:3px solid var(--border);padding-left:14px;line-height:1.6}
+
+  /* Concessions */
+  .concession-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+  .concession-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .concession-header{padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;transition:background .2s}
+  .concession-header:hover{background:var(--surface2)}
+  .concession-header h4{font-size:.95rem;font-weight:600}
+  .concession-arrow{transition:transform .3s;color:var(--text-muted);font-size:.8rem}
+  .concession-card.open .concession-arrow{transform:rotate(180deg)}
+  .concession-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+  .concession-card.open .concession-body{max-height:600px}
+  .concession-content{padding:0 20px 20px}
+  .concession-content p{font-size:.9rem;margin-bottom:10px}
+  .concession-content blockquote{font-style:italic;font-size:.85rem;color:var(--text-muted);border-left:3px solid var(--border);padding-left:12px;line-height:1.5}
+  .badge{display:inline-block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:4px;margin-right:6px}
+  .badge-team{background:var(--team-bg);color:var(--team);border:1px solid var(--team-border)}
+  .badge-claude{background:var(--claude-bg);color:var(--claude);border:1px solid var(--claude-border)}
+
+  /* Consensus Shifts */
+  .timeline{position:relative;max-width:800px;margin:0 auto}
+  .timeline::before{content:'';position:absolute;left:28px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--team),var(--claude),var(--accent))}
+  .shift-card{position:relative;margin-bottom:32px;margin-left:64px}
+  .shift-number{position:absolute;left:-52px;top:6px;width:36px;height:36px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;z-index:1}
+  .shift-card:nth-child(odd) .shift-number{border-color:var(--team);color:var(--team)}
+  .shift-card:nth-child(even) .shift-number{border-color:var(--claude);color:var(--claude)}
+  .shift-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+  .shift-title{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+  .shift-from-to{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;margin-bottom:14px;font-size:.85rem}
+  .shift-from{background:rgba(255,255,255,.03);border-radius:var(--radius-sm);padding:10px 14px;border:1px solid rgba(255,255,255,.05)}
+  .shift-to{background:rgba(34,197,94,.05);border-radius:var(--radius-sm);padding:10px 14px;border:1px solid rgba(34,197,94,.15)}
+  .shift-arrow-col{display:flex;align-items:center;font-size:1.2rem;color:var(--text-muted)}
+  .shift-label{font-weight:700;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:4px}
+  .shift-quote{font-style:italic;font-size:.85rem;color:var(--text-muted);border-left:3px solid var(--border);padding-left:12px;margin-top:10px;line-height:1.5}
+
+  /* Unresolved Disagreements */
+  .disagree-grid{display:grid;gap:24px;max-width:900px;margin:0 auto}
+  .vs-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px}
+  .vs-card h3{font-size:1.1rem;font-weight:700;margin-bottom:16px;text-align:center}
+  .vs-sides{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:start}
+  .vs-side{padding:16px;background:var(--surface2);border-radius:var(--radius-sm)}
+  .vs-side h4{font-size:.9rem;font-weight:700;margin-bottom:8px}
+  .vs-side p{font-size:.85rem;color:var(--text-muted)}
+  .vs-center{display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;color:var(--text-muted)}
+  .vs-team{border-top:3px solid var(--team)}.vs-claude{border-top:3px solid var(--claude)}
+
+  /* Verdict */
+  .verdict-section{text-align:center;max-width:800px;margin:0 auto}
+  .verdict-winner{font-size:clamp(1.5rem,4vw,2.5rem);font-weight:800;margin:24px 0;background:linear-gradient(135deg,var(--team),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .verdict-reason{font-size:1rem;color:var(--text-muted);max-width:600px;margin:0 auto 32px;line-height:1.7}
+  .verdict-cherrypick{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;text-align:left;max-width:700px;margin:0 auto 40px}
+  .verdict-cherrypick h3{font-size:1rem;font-weight:700;margin-bottom:12px;color:var(--claude)}
+  .verdict-cherrypick ul{list-style:none;padding:0}
+  .verdict-cherrypick li{font-size:.9rem;padding:6px 0;padding-left:20px;position:relative;color:var(--text-muted)}
+  .verdict-cherrypick li::before{content:'\2192';position:absolute;left:0;color:var(--claude)}
+  .stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;margin-top:40px}
+  .stat{text-align:center}
+  .stat-num{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--team),var(--claude));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .stat-label{font-size:.8rem;color:var(--text-muted);margin-top:2px}
+
+  /* Nav */
+  .nav{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
+  .nav-inner{max-width:1200px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+  .nav-inner::-webkit-scrollbar{display:none}
+  .nav a{color:var(--text-muted);font-size:.82rem;padding:12px 14px;white-space:nowrap;transition:color .2s;border-bottom:2px solid transparent}
+  .nav a:hover,.nav a.active{color:var(--text);border-bottom-color:var(--team)}
+
+  /* Responsive */
+  @media(max-width:768px){
+    .vs-sides{grid-template-columns:1fr;gap:12px}
+    .vs-center{padding:0}
+    .matrix{grid-template-columns:100px repeat(2,1fr);font-size:.8rem}
+    .shift-card{margin-left:52px}
+    .agent-grid{grid-template-columns:1fr}
+    .concession-grid{grid-template-columns:1fr}
+    .stats{gap:24px}
+    .h2h-table{font-size:.8rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#agents">Advocates</a>
+    <a href="#h2h">Head-to-Head</a>
+    <a href="#attacks">Attack Matrix</a>
+    <a href="#concessions">Concessions</a>
+    <a href="#consensus">Consensus Shifts</a>
+    <a href="#unresolved">Disagreements</a>
+    <a href="#verdict">Verdict</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero">
+  <h1>The Branch Debate</h1>
+  <p>Two implementations of claude-code-scrubber &mdash; one built by a 4-agent team, one by a single Claude session</p>
+  <p class="tagline">Team Branch vs Claude Branch &bull; Puppets-style adversarial debate &bull; Which merges to main?</p>
+</header>
+
+<!-- Agent Cards -->
+<section id="agents">
+  <div class="container">
+    <h2 class="section-title">The Advocates</h2>
+    <p class="section-subtitle">Each advocate researched their branch independently, then cross-reviewed the opposition</p>
+    <div class="agent-grid">
+
+      <div class="agent-card team">
+        <div class="agent-name"><span class="agent-dot"></span>Team Branch</div>
+        <div class="agent-focus">4-Layer Pipeline Architecture &bull; 4 Agents Built This</div>
+        <div class="agent-stats">
+          <div class="agent-stat"><strong>2,953</strong> source lines</div>
+          <div class="agent-stat"><strong>257</strong> tests passing</div>
+          <div class="agent-stat"><strong>22</strong> source files</div>
+          <div class="agent-stat"><strong>6</strong> detector modules</div>
+        </div>
+        <p class="agent-contribution">Production-grade pipeline: Parser &rarr; Scanner &rarr; Redactor &rarr; CLI. Six detector modules with 25+ patterns, stable numbered redaction IDs, overlap resolution, interactive review mode, and Rich terminal output. Built by parser, scanner, redactor, and reviewer agents working in parallel.</p>
+        <blockquote class="agent-quote">"The team branch has the harder problems solved. Adding patterns is trivial. Building a correct redaction engine from scratch is not."</blockquote>
+      </div>
+
+      <div class="agent-card claude">
+        <div class="agent-name"><span class="agent-dot"></span>Claude Branch</div>
+        <div class="agent-focus">Flat Module Architecture &bull; Single Session Build</div>
+        <div class="agent-stats">
+          <div class="agent-stat"><strong>966</strong> source lines</div>
+          <div class="agent-stat"><strong>0</strong> tests passing</div>
+          <div class="agent-stat"><strong>5</strong> source files</div>
+          <div class="agent-stat"><strong>39</strong> pattern defs</div>
+        </div>
+        <p class="agent-contribution">Pragmatic flat architecture with no abstractions. Five focused modules covering 20+ providers, three file formats (JSONL, JSON, HTML), CI exit codes, multi-file glob CLI arguments, and a single dependency (click). Built in one Claude Code session.</p>
+        <blockquote class="agent-quote">"At 966 source lines, this implementation achieves remarkable feature density. A new contributor can read the entire codebase in 30 minutes."</blockquote>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Head-to-Head Table -->
+<section id="h2h">
+  <div class="container">
+    <h2 class="section-title">Head-to-Head</h2>
+    <p class="section-subtitle">Dimension-by-dimension comparison from the final synthesis</p>
+    <div class="h2h-wrapper">
+    <table class="h2h-table">
+      <thead><tr><th>Dimension</th><th>Team Branch</th><th>Claude Branch</th><th>Edge</th></tr></thead>
+      <tbody>
+        <tr><td>Source Lines</td><td>2,953 (22 files)</td><td>966 (5 files)</td><td class="edge-claude">Claude (3x leaner)</td></tr>
+        <tr><td>Test Suite</td><td>257 passing, 0.18s</td><td>0 passing (syntax error)</td><td class="edge-team">Team (decisive)</td></tr>
+        <tr><td>Provider Coverage</td><td>8 providers</td><td>20+ providers</td><td class="edge-claude">Claude</td></tr>
+        <tr><td>PII Detection</td><td>Email, phone, address, names</td><td>Email only</td><td class="edge-team">Team</td></tr>
+        <tr><td>IPv6 Support</td><td>Yes</td><td>No</td><td class="edge-team">Team</td></tr>
+        <tr><td>Format Support</td><td>JSONL, JSON</td><td>JSONL, JSON, HTML</td><td class="edge-claude">Claude</td></tr>
+        <tr><td>Redaction IDs</td><td>Stable numbered [REDACTED-X-N]</td><td>Generic ***REDACTED***</td><td class="edge-team">Team (decisive)</td></tr>
+        <tr><td>Overlap Resolution</td><td>Yes (confidence + length)</td><td>No (sequential sub)</td><td class="edge-team">Team</td></tr>
+        <tr><td>Round-trip Fidelity</td><td>Raw dict preservation + tests</td><td>json.dumps (lossy)</td><td class="edge-team">Team</td></tr>
+        <tr><td>Interactive Review</td><td>Yes (y/n/allowlist/quit)</td><td>No</td><td class="edge-team">Team</td></tr>
+        <tr><td>CI Exit Codes</td><td>No</td><td>Yes (exit 1 on findings)</td><td class="edge-claude">Claude</td></tr>
+        <tr><td>Multi-file CLI</td><td>Single file or directory</td><td>Variadic nargs=-1</td><td class="edge-claude">Claude</td></tr>
+        <tr><td>Dependencies</td><td>4 (click, rich, tomli, tomli-w)</td><td>1 (click)</td><td class="edge-claude">Claude</td></tr>
+        <tr><td>Package Naming</td><td>transcript_scrub (mismatch)</td><td>claude_code_scrubber (matches)</td><td class="edge-claude">Claude</td></tr>
+        <tr><td>Architecture</td><td>4-layer pipeline with ABCs</td><td>Flat modules</td><td class="edge-split">Preference</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- Attack Matrix -->
+<section id="attacks">
+  <div class="container">
+    <h2 class="section-title">Attack Matrix</h2>
+    <p class="section-subtitle">Click a cell to see the full attacks &mdash; 21 total across both advocates</p>
+    <div class="matrix-wrapper">
+      <div class="matrix">
+        <!-- Header row -->
+        <div class="matrix-cell matrix-header" style="background:var(--surface3)"></div>
+        <div class="matrix-cell matrix-header"><span class="agent-dot" style="background:var(--team);width:10px;height:10px;border-radius:50%;display:inline-block"></span> Team</div>
+        <div class="matrix-cell matrix-header"><span class="agent-dot" style="background:var(--claude);width:10px;height:10px;border-radius:50%;display:inline-block"></span> Claude</div>
+
+        <!-- Team row -->
+        <div class="matrix-cell matrix-row-header"><span class="agent-dot" style="background:var(--team);width:10px;height:10px;border-radius:50%;display:inline-block"></span> Team</div>
+        <div class="matrix-cell matrix-empty">&mdash;</div>
+        <div class="matrix-cell matrix-attack" onclick="openModal('team-claude')">
+          <div><div class="peek">Zero passing tests, no stable redaction, no overlap resolution</div><div class="attack-count">10 attacks</div></div>
+        </div>
+
+        <!-- Claude row -->
+        <div class="matrix-cell matrix-row-header"><span class="agent-dot" style="background:var(--claude);width:10px;height:10px;border-radius:50%;display:inline-block"></span> Claude</div>
+        <div class="matrix-cell matrix-attack" onclick="openModal('claude-team')">
+          <div><div class="peek">Over-engineered, missing patterns, no HTML, no CI exit codes</div><div class="attack-count">11 attacks</div></div>
+        </div>
+        <div class="matrix-cell matrix-empty">&mdash;</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Attack Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModal(event)">&times;</button>
+    <h3 id="modalTitle"></h3>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Concessions -->
+<section id="concessions">
+  <div class="container">
+    <h2 class="section-title">Concessions</h2>
+    <p class="section-subtitle">What each advocate honestly acknowledged the other got right &mdash; 9 total</p>
+    <div class="concession-grid">
+
+      <div class="concession-card" onclick="toggleConcession(this)">
+        <div class="concession-header">
+          <h4><span class="badge badge-team">Team</span> Broader provider coverage</h4>
+          <span class="concession-arrow">&#9660;</span>
+        </div>
+        <div class="concession-body"><div class="concession-content">
+          <p>The Claude branch includes patterns for <strong>Google API, SendGrid, Twilio, npm, PyPI, Vercel, Supabase, and Netlify</strong> tokens that the team branch does not cover.</p>
+          <blockquote>"These are genuine detection gaps in the team branch for cloud services. The team branch should add these."</blockquote>
+        </div></div>
+      </div>
+
+      <div class="concession-card" onclick="toggleConcession(this)">
+        <div class="concession-header">
+          <h4><span class="badge badge-claude">Claude</span> Stable numbered redaction is superior</h4>
+          <span class="concession-arrow">&#9660;</span>
+        </div>
+        <div class="concession-body"><div class="concession-content">
+          <p>The team branch's <code>[REDACTED-API-KEY-1]</code> system is objectively better than generic <code>***REDACTED***</code> replacements.</p>
+          <blockquote>"When the same API key appears 5 times, the team branch produces [REDACTED-API-KEY-1] everywhere, preserving the understanding that they are the same key."</blockquote>
+        </div></div>
+      </div>
+
+      <div class="concession-card" onclick="toggleConcession(this)">
+        <div class="concession-header">
+          <h4><span class="badge badge-team">Team</span> CI exit codes</h4>
+          <span class="concession-arrow">&#9660;</span>
+        </div>
+        <div class="concession-body"><div class="concession-content">
+          <p>The Claude branch exits with code 1 when findings exist &mdash; practical for CI pipeline integration. The team branch always exits 0.</p>
+          <blockquote>"This is a genuinely useful feature."</blockquote>
+        </div></div>
+      </div>
+
+      <div class="concession-card" onclick="toggleConcession(this)">
+        <div class="concession-header">
+          <h4><span class="badge badge-claude">Claude</span> Test suite is comprehensive and passes</h4>
+          <span class="concession-arrow">&#9660;</span>
+        </div>
+        <div class="concession-body"><div class="concession-content">
+          <p>257 passing tests in 0.18s with 7 realistic fixtures, character-position accuracy assertions, and round-trip verification.</p>
+          <blockquote>"All tests actually run and pass. The claude branch's tests have a syntax error that prevents the entire file from being collected."</blockquote>
+        </div></div>
+      </div>
+
+      <div class="concession-card" onclick="toggleConcession(this)">
+        <div class="concession-header">
+          <h4><span class="badge badge-team">Team</span> Claude credentials file pattern</h4>
+          <span class="concession-arrow">&#9660;</span>
+        </div>
+        <div class="concession-body"><div class="concession-content">
+          <p>Domain-specific pattern for <code>.credentials.json</code> content with <code>oauth_token</code>, <code>api_key</code>, <code>session_key</code> fields.</p>
+        </div></div>
+      </div>
+
+      <div class="concession-card" onclick="toggleConcession(this)">
+        <div class="concession-header">
+          <h4><span class="badge badge-claude">Claude</span> Interactive review mode is thoughtful</h4>
+          <span class="concession-arrow">&#9660;</span>
+        </div>
+        <div class="concession-body"><div class="concession-content">
+          <p>The y/n/allowlist/quit workflow with auto-confirming high-confidence findings and persistent allowlist additions demonstrates deep understanding of the user workflow.</p>
+        </div></div>
+      </div>
+
+      <div class="concession-card" onclick="toggleConcession(this)">
+        <div class="concession-header">
+          <h4><span class="badge badge-team">Team</span> Username-in-text detection</h4>
+          <span class="concession-arrow">&#9660;</span>
+        </div>
+        <div class="concession-body"><div class="concession-content">
+          <p>The Claude branch detects usernames in general text contexts and encoded project directory paths (<code>-Users-name-</code>), not just filesystem paths.</p>
+        </div></div>
+      </div>
+
+      <div class="concession-card" onclick="toggleConcession(this)">
+        <div class="concession-header">
+          <h4><span class="badge badge-claude">Claude</span> Phone and address detection</h4>
+          <span class="concession-arrow">&#9660;</span>
+        </div>
+        <div class="concession-body"><div class="concession-content">
+          <p>US/international phone numbers, physical addresses, and names in PII contexts &mdash; all at MEDIUM confidence with configurable thresholds.</p>
+        </div></div>
+      </div>
+
+      <div class="concession-card" onclick="toggleConcession(this)">
+        <div class="concession-header">
+          <h4><span class="badge badge-team">Team</span> Simpler mental model</h4>
+          <span class="concession-arrow">&#9660;</span>
+        </div>
+        <div class="concession-body"><div class="concession-content">
+          <p>The flat architecture (4 source files, no ABCs, no registries) is genuinely easier to understand for solo developers.</p>
+          <blockquote>"For a solo developer making a quick contribution, the Claude branch has lower cognitive overhead."</blockquote>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Consensus Shifts -->
+<section id="consensus">
+  <div class="container">
+    <h2 class="section-title">Consensus Shifts</h2>
+    <p class="section-subtitle">Views that changed during the cross-review phase</p>
+    <div class="timeline">
+
+      <div class="shift-card">
+        <div class="shift-number">1</div>
+        <div class="shift-inner">
+          <div class="shift-title">HTML support is less critical than argued</div>
+          <div class="shift-from-to">
+            <div class="shift-from"><div class="shift-label">Before</div>"No HTML support is disqualifying for the claude-code-transcripts workflow"</div>
+            <div class="shift-arrow-col">&rarr;</div>
+            <div class="shift-to"><div class="shift-label">After</div>The correct workflow is scrub JSONL first, then convert to HTML. HTML support is nice-to-have, not a blocker.</div>
+          </div>
+          <div class="shift-quote">The Claude advocate's "disqualifying" framing was overblown. claude-code-transcripts converts JSONL&rarr;HTML, so you scrub before conversion.</div>
+        </div>
+      </div>
+
+      <div class="shift-card">
+        <div class="shift-number">2</div>
+        <div class="shift-inner">
+          <div class="shift-title">IP detection is a genuine design tension</div>
+          <div class="shift-from-to">
+            <div class="shift-from"><div class="shift-label">Team says</div>Flag all IPs, allowlist the safe ones (loopback, RFC 5737)</div>
+            <div class="shift-arrow-col">vs</div>
+            <div class="shift-to"><div class="shift-label">Claude says</div>Only flag private RFC 1918 IPs &mdash; public IPs aren't sensitive</div>
+          </div>
+          <div class="shift-quote">Both have merit. Correct answer: team's approach + a better default allowlist including well-known public DNS/CDN IPs.</div>
+        </div>
+      </div>
+
+      <div class="shift-card">
+        <div class="shift-number">3</div>
+        <div class="shift-inner">
+          <div class="shift-title">Code size ratio is less meaningful than code correctness</div>
+          <div class="shift-from-to">
+            <div class="shift-from"><div class="shift-label">Before</div>"3x more code = over-engineering"</div>
+            <div class="shift-arrow-col">&rarr;</div>
+            <div class="shift-to"><div class="shift-label">After</div>The extra lines buy verified correctness: 257 tests, overlap resolution, stable redaction, round-trip fidelity.</div>
+          </div>
+          <div class="shift-quote">The claude branch's compactness comes at the cost of zero verified correctness (broken tests), lossy reconstruction, and no overlap handling.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Unresolved Disagreements -->
+<section id="unresolved">
+  <div class="container">
+    <h2 class="section-title">Unresolved Disagreements</h2>
+    <p class="section-subtitle">Genuine tensions that remain after debate</p>
+    <div class="disagree-grid">
+
+      <div class="vs-card">
+        <h3>Flat vs Layered Architecture</h3>
+        <div class="vs-sides">
+          <div class="vs-side vs-team">
+            <h4>Team: Layered Pipeline</h4>
+            <p>ABCs, registries, and clean separation of concerns enable extension without modifying existing code. Scales better for teams.</p>
+          </div>
+          <div class="vs-center">VS</div>
+          <div class="vs-side vs-claude">
+            <h4>Claude: Flat Modules</h4>
+            <p>No abstract base classes, no registries. A <code>ScrubPattern</code> dataclass and a factory function achieve the same extensibility in 30 lines.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="vs-card">
+        <h3>Dependency Minimalism vs UX Richness</h3>
+        <div class="vs-sides">
+          <div class="vs-side vs-team">
+            <h4>Team: Rich + tomli-w</h4>
+            <p>Progress bars, colored diffs, interactive panels materially improve UX. Worth the dependency cost.</p>
+          </div>
+          <div class="vs-center">VS</div>
+          <div class="vs-side vs-claude">
+            <h4>Claude: click only</h4>
+            <p>A security tool should have a minimal footprint. Fewer conflicts, faster CI, smaller Docker images.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="vs-card">
+        <h3>Sequential sub() vs Finding-Based Redaction</h3>
+        <div class="vs-sides">
+          <div class="vs-side vs-team">
+            <h4>Team: Collect &rarr; Resolve &rarr; Apply</h4>
+            <p>Safer overlap handling, stable IDs, but O(n&sup2;) worst-case per block.</p>
+          </div>
+          <div class="vs-center">VS</div>
+          <div class="vs-side vs-claude">
+            <h4>Claude: Sequential re.sub()</h4>
+            <p>O(n) per pattern, simple, but risks chain-redaction when replacements match later patterns.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Verdict -->
+<section id="verdict">
+  <div class="container">
+    <div class="verdict-section">
+      <h2 class="section-title">The Verdict</h2>
+      <p class="section-subtitle">After 21 attacks, 9 concessions, and 3 consensus shifts</p>
+
+      <div class="verdict-winner">Merge the Team Branch</div>
+
+      <p class="verdict-reason">
+        A security scrubbing tool has one job: ensure sensitive data is removed correctly.
+        The team branch has the harder problems solved &mdash; stable redaction, overlap resolution,
+        verified round-trip fidelity, and 257 passing tests. Adding patterns is trivial.
+        Rebuilding a correct redaction engine is not.
+      </p>
+
+      <div class="verdict-cherrypick">
+        <h3>Cherry-pick from the Claude Branch</h3>
+        <ul>
+          <li>12 additional provider patterns (Google, SendGrid, Twilio, npm, PyPI, Vercel, Supabase, Netlify)</li>
+          <li>CI exit code &mdash; <code>sys.exit(1)</code> on scan findings</li>
+          <li>Multi-file CLI arguments &mdash; variadic <code>nargs=-1</code></li>
+          <li>Package rename to <code>claude_code_scrubber</code> for PyPI consistency</li>
+          <li>Well-known public IPs added to default allowlist</li>
+          <li>Fix <code>_is_regex</code> allowlist bug &mdash; use explicit regex markers</li>
+        </ul>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="stat-num">21</div><div class="stat-label">Direct Attacks</div></div>
+        <div class="stat"><div class="stat-num">9</div><div class="stat-label">Concessions</div></div>
+        <div class="stat"><div class="stat-num">3</div><div class="stat-label">Consensus Shifts</div></div>
+        <div class="stat"><div class="stat-num">3</div><div class="stat-label">Unresolved</div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer style="text-align:center;padding:40px 24px;color:var(--text-muted);font-size:.8rem;border-top:1px solid var(--border)">
+  Generated by a puppets-style adversarial debate &bull; Claude Code &bull; March 2026
+</footer>
+
+<script>
+const attacks = {
+  'team-claude': {
+    title: 'Team Advocate \u2192 Claude Branch',
+    items: [
+      {label:'#1: Zero Passing Tests',quote:'The Claude branch has zero passing tests. Running pytest produces: collected 0 items / 1 error / SyntaxError. The test file has a Python syntax error (hyphens in import). The tests were never run after being written.'},
+      {label:'#2: No Stable Redaction Map',quote:'Every match of a pattern gets the same static replacement string. If a transcript contains two different API keys, both become sk-ant-***REDACTED*** \u2014 you cannot tell them apart.'},
+      {label:'#3: No Overlap Resolution',quote:'Patterns apply sequentially with text = pat.pattern.sub(). Each pattern runs against already-modified text from previous patterns. Pattern A\'s replacement could match Pattern B\'s regex, causing double-redaction.'},
+      {label:'#4: Username-Dependent Path Detection',quote:'Path detection only creates patterns when a username is provided. If no username is given, no paths are detected at all. The team branch catches paths from any user without requiring pre-knowledge.'},
+      {label:'#5: Inflated Pattern Count',quote:'The advocate claims 39 patterns. But 1 is disabled, 6 are username-conditional. The actual always-active count is 32. And the team branch covers entire categories the Claude branch misses: phone numbers, IPv6, internal hostnames, AWS account IDs, SSH keys.'},
+      {label:'#6: No Reconstruction Fidelity',quote:'JSON key ordering may change, whitespace is lost, no round-trip tests verify the output. The team branch preserves raw dicts and has explicit round-trip tests.'},
+      {label:'#7: No Interactive Review Mode',quote:'All findings at configured severity are redacted automatically. No way to review medium/low confidence findings, skip specific findings, or build an allowlist during review.'},
+      {label:'#8: Test File Inside Source Package',quote:'test_scrubber.py is inside src/claude_code_scrubber/ \u2014 the shipped package. The test file (with its syntax error) would be distributed to end users in pip install.'},
+      {label:'#9: Only Private IPs Detected',quote:'Only detects RFC 1918 private ranges. A transcript containing 54.239.28.85 (AWS endpoint) or 203.45.67.89 (server IP) passes through unredacted. Public IPs often reveal production infrastructure.'},
+      {label:'#10: HTML Support Is Questionable Value',quote:'Claude Code transcripts are never natively HTML. They are JSONL or JSON. HTML is only produced by rendering tools. The correct workflow is scrub first, convert later.'}
+    ]
+  },
+  'claude-team': {
+    title: 'Claude Advocate \u2192 Team Branch',
+    items: [
+      {label:'#1: No HTML Format Support',quote:'The team branch does not support HTML files at all. The primary use case is compatibility with claude-code-transcripts which outputs HTML. Without HTML support, the team branch fails the core workflow.'},
+      {label:'#2: 3x More Code for Comparable Functionality',quote:'2,953 lines vs 966 lines. The extra 2,000 lines buy: an ABC (55 lines), a registry wrapper (84 lines), another ABC (35 lines), 6 dataclasses (115 lines), 6 __init__.py re-exports (143 lines). That\'s 432 lines of pure infrastructure.'},
+      {label:'#3: Package Name Mismatch',quote:'Internal name transcript_scrub vs PyPI name claude-code-scrubber. pip install claude-code-scrubber gives import transcript_scrub \u2014 a discoverability failure.'},
+      {label:'#4: Missing 12 High-Value Detection Patterns',quote:'No Google API, SendGrid, Twilio, npm, PyPI, Vercel, Supabase, Netlify, OpenAI project key, Claude credentials, encoded paths, or shell prompt detection. In a security tool, detection coverage is the primary value proposition.'},
+      {label:'#5: 4 Dependencies vs 1',quote:'click + rich + tomli + tomli-w vs just click. The rich dependency is heavyweight. A security scanning tool should have a minimal footprint for CI pipelines, Docker images, and air-gapped environments.'},
+      {label:'#6: Single-File CLI vs Multi-File Glob',quote:'claude-code-scrubber scan *.jsonl does not work. The user must pass a directory or process files one at a time. The Claude branch supports variadic nargs=-1 for natural shell patterns.'},
+      {label:'#7: No CI Exit Code on scan',quote:'The scan command always returns normally. Cannot be used in CI pipelines to gate on secret detection. The Claude branch exits with code 1 when findings exist.'},
+      {label:'#8: O(n\u00B2) Overlap Resolution',quote:'_resolve_overlaps uses a nested loop with kept.remove(k) which is O(n) removal. Combined with the outer loop, this is O(n\u00B2) per block. The Claude branch avoids this with sequential O(n) re.sub() per pattern.'},
+      {label:'#9: No JSON Config Format',quote:'Only generates TOML config. Users who prefer JSON are unsupported. The Claude branch supports both formats.'},
+      {label:'#10: IPv4 Flags ALL IPs',quote:'8.8.8.8 (Google DNS), 1.1.1.1 (Cloudflare DNS) will be flagged as HIGH confidence. In transcripts, public IPs appear constantly in curl output, pip install logs, etc. Massive false positive noise.'},
+      {label:'#11: _is_regex Allowlist Bug',quote:'The heuristic treats . in allowlist entries as regex wildcards. my.email@company.com will match myXemail@company.com. Users who think they allowlist a specific string inadvertently allowlist a broader pattern. This is a security bug.'}
+    ]
+  }
+};
+
+function openModal(key) {
+  const data = attacks[key];
+  if (!data) return;
+  document.getElementById('modalTitle').textContent = data.title;
+  const body = document.getElementById('modalBody');
+  body.innerHTML = data.items.map(a =>
+    '<div class="attack-item"><div class="attack-label">' + a.label + '</div><blockquote>' + a.quote + '</blockquote></div>'
+  ).join('');
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay') || e.target.classList.contains('modal-close') || e.type === 'click' && e.target.closest('.modal-close')) {
+    document.getElementById('modalOverlay').classList.remove('active');
+  }
+}
+
+function toggleConcession(card) {
+  card.classList.toggle('open');
+}
+
+// Nav scroll highlighting
+const sections = document.querySelectorAll('section');
+const navLinks = document.querySelectorAll('.nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+  });
+}, {passive: true});
+
+// Escape to close modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('modalOverlay').classList.remove('active');
+});
+</script>
+</body>
+</html>

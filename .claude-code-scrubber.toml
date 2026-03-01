@@ -1,0 +1,18 @@
+# Claude Code Scrubber configuration
+# Place this file in your project root or at ~/.config/claude-code-scrubber/config.toml
+
+[scrubber]
+# Minimum confidence level to redact: "high", "medium" (default), or "low"
+confidence_threshold = "medium"
+
+# Whether to redact filesystem paths (e.g. /Users/name/...)
+redact_paths = true
+
+# Whether to keep RFC 5737 example/documentation IPs
+keep_example_ips = true
+
+# Patterns to never redact (literal strings or regex patterns)
+allowlist = []
+
+# Additional patterns to always redact
+denylist = []

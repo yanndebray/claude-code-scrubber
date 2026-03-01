@@ -1,0 +1,4 @@
+{"type":"human","message":{"role":"user","content":"Can you help me set up the project? My email is john.smith@acmecorp.com and the repo is at /home/jsmith/projects/myapp"}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Sure! I can see the project at /home/jsmith/projects/myapp. Let me take a look at the structure and help you configure it."}]}}
+{"type":"human","message":{"role":"user","content":[{"type":"text","text":"The config file should point to our staging server at db.acmecorp.internal:5432 and the API endpoint is https://api.acmecorp.com/v2/data"}]}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"I'll configure the connection to db.acmecorp.internal:5432 and set the API endpoint to https://api.acmecorp.com/v2/data. Let me update the config file at /home/jsmith/projects/myapp/config.yaml"}]}}

@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claude-code-scrubber"
+version = "0.1.0"
+description = "Scrub personal info, secrets, and API keys from Claude Code transcripts before publishing"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "Yann" }]
+keywords = ["claude-code", "transcripts", "scrub", "secrets", "privacy"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Topic :: Software Development :: Documentation",
+]
+dependencies = ["click>=8.0"]
+
+[project.scripts]
+claude-code-scrubber = "claude_code_scrubber.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

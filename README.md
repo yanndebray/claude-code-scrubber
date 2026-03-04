@@ -4,6 +4,22 @@
 
 Scrub API keys, secrets, and personal information from Claude Code transcripts before publishing them to public repos.
 
+## Artifacts
+
+### Debate: Team vs Claude branch comparison
+- [Final Verdict](debate/debate-final-verdict.md)
+- [Team Report](debate/debate-team-report.md) | [Team Cross-Review](debate/debate-team-crossreview.md)
+- [Claude Report](debate/debate-claude-report.md) | [Claude Cross-Review](debate/debate-claude-crossreview.md)
+- [Interactive Debate Visualization](debate/debate.html)
+- [Arena Battle](debate/arena-battle.md) | [Arena Battle (HTML)](debate/arena-battle.html)
+- [Court Proceedings](debate/court-proceedings.md) | [Court Proceedings (HTML)](debate/court-proceedings.html)
+- [Multiverse Analysis](debate/multiverse-analysis.md) | [Multiverse Analysis (HTML)](debate/multiverse-analysis.html)
+- [Showboat Evidence](debate/showboat-evidence.md) | [Showboat Evidence (HTML)](debate/showboat-evidence.html)
+- [Spectacle Showdown](debate/spectacle-showdown.md) | [Spectacle Showdown (HTML)](debate/spectacle-showdown.html)
+
+### Research
+- [Sensitive Data Scrubbing Tools Research](research/sensitive-data-scrubbing-tools-research.md)
+
 Inspired by [Simon Willison's claude-code-transcripts](https://github.com/simonw/claude-code-transcripts) — this tool sits between your raw session data and your public GitHub Pages, giving you peace of mind that you're not leaking credentials.
 
 ## What it catches

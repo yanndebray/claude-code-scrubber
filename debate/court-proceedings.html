@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IN THE HIGH COURT OF SOFTWARE ARCHITECTURE — Case No. 2026-SCRUB-001</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Source+Serif+4:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-base: #1a1410;
+  --bg-gradient: #2a2018;
+  --bg-card: #221c14;
+  --gold: #ffd700;
+  --gold-dim: #b8971a;
+  --gold-glow: rgba(255, 215, 0, 0.15);
+  --border: #3d3225;
+  --border-light: #4a3d2e;
+  --text-primary: #e8e0d4;
+  --text-secondary: #a0947e;
+  --text-dim: #7a6f5f;
+  --judge: #ffd700;
+  --advocate-defense: #c8b88a;
+  --advocate-prosecution: #90a4ae;
+  --expert: #90a4ae;
+  --juror: #9e9e9e;
+  --defense-accent: #8b7ec8;
+  --prosecution-accent: #6bb5c8;
+  --sidebar-width: 280px;
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Source Serif 4', 'Source Serif Pro', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg-base);
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(42, 32, 24, 0.8) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(42, 32, 24, 0.5) 0%, transparent 50%);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.75;
+  min-height: 100vh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+/* ======================== SIDEBAR ======================== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: linear-gradient(180deg, #1e1812 0%, #171210 100%);
+  border-right: 1px solid var(--border);
+  padding: 2rem 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 0 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+
+.sidebar-case {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.sidebar-title {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  color: inherit;
+}
+
+.nav-item:hover {
+  background: rgba(255, 215, 0, 0.04);
+  border-left-color: var(--border-light);
+}
+
+.nav-item.active {
+  background: rgba(255, 215, 0, 0.08);
+  border-left-color: var(--gold);
+}
+
+.nav-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  margin-top: 5px;
+  transition: all 0.3s ease;
+}
+
+.nav-item.active .nav-dot {
+  border-color: var(--gold);
+  background: var(--gold);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+.nav-label {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.nav-item.active .nav-label {
+  color: var(--gold);
+}
+
+.nav-phase-num {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  display: block;
+  margin-top: 0.15rem;
+}
+
+.sidebar-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* ======================== MAIN ======================== */
+.main-content {
+  margin-left: var(--sidebar-width);
+  padding: 0 2.5rem 4rem;
+  max-width: 960px;
+}
+
+/* ======================== HEADER ======================== */
+.court-header {
+  text-align: center;
+  padding: 3.5rem 0 2.5rem;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 3rem;
+  animation: fadeSlideIn 0.8s ease-out;
+}
+
+.header-gavel {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.75rem;
+  filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.3));
+}
+
+.header-court-name {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.6rem;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.15);
+}
+
+.header-subtitle {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.header-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.25rem 0;
+  color: var(--gold-dim);
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+}
+
+.header-ornament::before,
+.header-ornament::after {
+  content: '';
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+}
+
+.header-case-number {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.35rem;
+}
+
+.header-case-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.header-case-parties {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.15rem;
+}
+
+.header-case-date {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.header-epigraph {
+  margin-top: 1.75rem;
+  padding: 1rem 2rem;
+  border-left: 3px solid var(--gold-dim);
+  background: rgba(255, 215, 0, 0.03);
+  text-align: left;
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.header-epigraph blockquote {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 0.35rem;
+}
+
+.header-epigraph blockquote:last-child {
+  margin-bottom: 0;
+}
+
+.header-epigraph .attribution {
+  font-style: normal;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+/* ======================== PHASE SECTIONS ======================== */
+.phase-section {
+  margin-bottom: 3.5rem;
+  animation: fadeSlideIn 0.6s ease-out both;
+}
+
+.phase-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-top: 1.5rem;
+}
+
+.phase-divider::before,
+.phase-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+.phase-label {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 0.7rem;
+  color: var(--gold);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.phase-title {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  line-height: 1.3;
+}
+
+/* ======================== SPEAKER BLOCKS ======================== */
+.speaker-block {
+  margin-bottom: 1.75rem;
+}
+
+.speaker-name {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.speaker-name.judge { color: var(--judge); }
+.speaker-name.defense { color: var(--advocate-defense); }
+.speaker-name.prosecution { color: var(--advocate-prosecution); }
+.speaker-name.expert { color: var(--expert); }
+.speaker-name.juror { color: var(--juror); }
+
+.speaker-role {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.speaker-role.judge-role {
+  background: rgba(255, 215, 0, 0.12);
+  color: var(--gold);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+}
+
+.speaker-role.defense-role {
+  background: rgba(139, 126, 200, 0.12);
+  color: var(--defense-accent);
+  border: 1px solid rgba(139, 126, 200, 0.25);
+}
+
+.speaker-role.prosecution-role {
+  background: rgba(107, 181, 200, 0.12);
+  color: var(--prosecution-accent);
+  border: 1px solid rgba(107, 181, 200, 0.25);
+}
+
+.speaker-text {
+  font-size: 0.92rem;
+  color: var(--text-primary);
+  line-height: 1.8;
+}
+
+.speaker-text p {
+  margin-bottom: 0.85rem;
+}
+
+.speaker-text em {
+  color: var(--text-secondary);
+}
+
+.speaker-text code {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  background: rgba(255, 215, 0, 0.06);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+/* ======================== ADVOCATE CARDS ======================== */
+.advocate-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.advocate-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  animation: fadeSlideIn 0.6s ease-out both;
+}
+
+.advocate-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.advocate-card.defense::before {
+  background: linear-gradient(90deg, var(--defense-accent), transparent);
+}
+
+.advocate-card.prosecution::before {
+  background: linear-gradient(90deg, var(--prosecution-accent), transparent);
+}
+
+.advocate-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.advocate-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.defense .advocate-icon {
+  background: rgba(139, 126, 200, 0.15);
+  border: 1px solid rgba(139, 126, 200, 0.3);
+}
+
+.prosecution .advocate-icon {
+  background: rgba(107, 181, 200, 0.15);
+  border: 1px solid rgba(107, 181, 200, 0.3);
+}
+
+.advocate-info h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.defense .advocate-info h3 { color: var(--defense-accent); }
+.prosecution .advocate-info h3 { color: var(--prosecution-accent); }
+
+.advocate-info .branch-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+.advocate-card .opening-line {
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+
+.fact-item {
+  margin-bottom: 1rem;
+  padding-left: 0;
+}
+
+.fact-label {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.defense .fact-label { color: var(--defense-accent); }
+.prosecution .fact-label { color: var(--prosecution-accent); }
+
+.fact-text {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  line-height: 1.65;
+}
+
+.fact-text code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  background: rgba(255, 215, 0, 0.06);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.advocate-rest {
+  margin-top: 1.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+/* ======================== WITNESS SECTIONS ======================== */
+.witness-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+  animation: fadeSlideIn 0.5s ease-out both;
+}
+
+.witness-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  user-select: none;
+}
+
+.witness-header:hover {
+  background: rgba(255, 215, 0, 0.03);
+}
+
+.witness-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.witness-info {
+  flex: 1;
+}
+
+.witness-info h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.witness-info .witness-title {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.witness-toggle {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.witness-section.expanded .witness-toggle {
+  transform: rotate(180deg);
+}
+
+.witness-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+}
+
+.witness-section.expanded .witness-body {
+  max-height: 3000px;
+  padding: 0 1.25rem 1.25rem;
+}
+
+.witness-sworn {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+
+.testimony-exchange {
+  margin-bottom: 1rem;
+}
+
+.testimony-q {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.82rem;
+  margin-bottom: 0.35rem;
+}
+
+.testimony-q.defense-q { color: var(--defense-accent); }
+.testimony-q.prosecution-q { color: var(--prosecution-accent); }
+
+.testimony-a {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  line-height: 1.7;
+  padding-left: 1rem;
+  border-left: 2px solid var(--border);
+  margin-bottom: 0.75rem;
+}
+
+.testimony-a code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  background: rgba(255, 215, 0, 0.06);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+/* ======================== CROSS EXAMINATION ======================== */
+.cross-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.cross-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.cross-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.cross-card.prosecution-attacks::before {
+  background: linear-gradient(90deg, var(--prosecution-accent), transparent);
+}
+
+.cross-card.defense-attacks::before {
+  background: linear-gradient(90deg, var(--defense-accent), transparent);
+}
+
+.cross-card h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.prosecution-attacks h3 { color: var(--prosecution-accent); }
+.defense-attacks h3 { color: var(--defense-accent); }
+
+.cross-point {
+  margin-bottom: 0.85rem;
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: var(--text-primary);
+}
+
+.cross-point strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.78rem;
+  margin-bottom: 0.2rem;
+}
+
+.prosecution-attacks .cross-point strong { color: var(--prosecution-accent); }
+.defense-attacks .cross-point strong { color: var(--defense-accent); }
+
+.cross-closing {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ======================== JUROR CARDS ======================== */
+.jury-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.juror-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.5rem;
+  animation: fadeSlideIn 0.5s ease-out both;
+}
+
+.juror-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.juror-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(158, 158, 158, 0.12);
+  border: 1px solid rgba(158, 158, 158, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.juror-info h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--juror);
+}
+
+.juror-info .juror-title {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+.juror-vote {
+  margin-left: auto;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  padding: 4px 12px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.juror-vote.leans-claude {
+  background: rgba(107, 181, 200, 0.12);
+  color: var(--prosecution-accent);
+  border: 1px solid rgba(107, 181, 200, 0.25);
+}
+
+.juror-vote.leans-team {
+  background: rgba(139, 126, 200, 0.12);
+  color: var(--defense-accent);
+  border: 1px solid rgba(139, 126, 200, 0.25);
+}
+
+.juror-deliberation {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+
+.juror-deliberation p {
+  margin-bottom: 0.7rem;
+}
+
+/* ======================== VERDICT ======================== */
+.verdict-box {
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.04) 0%, rgba(34, 28, 20, 1) 100%);
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.06), inset 0 0 30px rgba(255, 215, 0, 0.02);
+  animation: fadeSlideIn 0.8s ease-out both;
+}
+
+.verdict-formal {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: var(--gold);
+  text-align: center;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+.verdict-finding {
+  text-align: center;
+  font-size: 1rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.verdict-finding strong {
+  font-family: var(--font-mono);
+  color: var(--gold);
+}
+
+.reasoning-section {
+  margin-bottom: 1.5rem;
+}
+
+.reasoning-section h4 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.reasoning-section p {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  line-height: 1.7;
+  margin-bottom: 0.5rem;
+}
+
+.reasoning-section p em {
+  color: var(--text-secondary);
+}
+
+.reasoning-section p code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  background: rgba(255, 215, 0, 0.06);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.court-orders {
+  margin: 1.5rem 0;
+}
+
+.court-orders h3 {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.order-item {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  background: rgba(255, 215, 0, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.order-num {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: var(--gold);
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.order-text {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.order-text strong {
+  color: var(--gold);
+}
+
+.order-text ul {
+  margin-top: 0.35rem;
+  padding-left: 1.25rem;
+}
+
+.order-text li {
+  margin-bottom: 0.25rem;
+  font-size: 0.85rem;
+}
+
+/* Precedent */
+.precedent-box {
+  margin: 2rem 0;
+  padding: 1.5rem 2rem;
+  border-left: 4px solid var(--gold);
+  background: rgba(255, 215, 0, 0.04);
+  border-radius: 0 6px 6px 0;
+}
+
+.precedent-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.precedent-text {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.precedent-text strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Closing */
+.court-closing {
+  text-align: center;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--border);
+}
+
+.closing-text {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  line-height: 1.8;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+}
+
+.closing-text strong {
+  color: var(--gold);
+}
+
+.court-adjourned {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.3rem;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+}
+
+.closing-seal {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+
+.closing-montaigne {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-top: 1rem;
+}
+
+.closing-montaigne .attribution {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 0.25rem;
+  font-style: normal;
+}
+
+/* ======================== ANIMATIONS ======================== */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ======================== RESPONSIVE ======================== */
+@media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 200;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 0 1.25rem 3rem;
+  }
+
+  .mobile-toggle {
+    display: flex;
+  }
+
+  .advocate-grid,
+  .cross-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header-court-name {
+    font-size: 1.2rem;
+  }
+
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 150;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.mobile-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 250;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--gold);
+  font-size: 1.2rem;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .mobile-toggle { display: flex; }
+}
+
+.backdrop {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .backdrop { display: block; }
+}
+</style>
+</head>
+<body>
+
+<!-- Mobile toggle -->
+<button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">&#9776;</button>
+<div class="backdrop" id="backdrop"></div>
+
+<!-- ======================== SIDEBAR ======================== -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-case">Case No. 2026-SCRUB-001</div>
+    <div class="sidebar-title">The People of the Repository<br>v. Two Competing Visions</div>
+  </div>
+  <div class="sidebar-nav">
+    <a class="nav-item active" href="#opening-of-court" data-section="opening-of-court">
+      <span class="nav-dot"></span>
+      <span class="nav-label">Opening of Court<span class="nav-phase-num">CONVENING</span></span>
+    </a>
+    <a class="nav-item" href="#phase-1" data-section="phase-1">
+      <span class="nav-dot"></span>
+      <span class="nav-label">Opening Statements<span class="nav-phase-num">PHASE I</span></span>
+    </a>
+    <a class="nav-item" href="#phase-2" data-section="phase-2">
+      <span class="nav-dot"></span>
+      <span class="nav-label">Expert Testimony<span class="nav-phase-num">PHASE II</span></span>
+    </a>
+    <a class="nav-item" href="#phase-3" data-section="phase-3">
+      <span class="nav-dot"></span>
+      <span class="nav-label">Cross-Examination<span class="nav-phase-num">PHASE III</span></span>
+    </a>
+    <a class="nav-item" href="#phase-4" data-section="phase-4">
+      <span class="nav-dot"></span>
+      <span class="nav-label">Jury Deliberation<span class="nav-phase-num">PHASE IV</span></span>
+    </a>
+    <a class="nav-item" href="#verdict" data-section="verdict">
+      <span class="nav-dot"></span>
+      <span class="nav-label">The Verdict<span class="nav-phase-num">RULING</span></span>
+    </a>
+  </div>
+  <div class="sidebar-footer">
+    "The most certain sign of wisdom is cheerfulness." &mdash; Montaigne
+  </div>
+</nav>
+
+<!-- ======================== MAIN CONTENT ======================== -->
+<main class="main-content">
+
+  <!-- ======================== HEADER ======================== -->
+  <header class="court-header" id="opening-of-court">
+    <span class="header-gavel">&#9878;</span>
+    <div class="header-court-name">In the High Court of Software Architecture</div>
+    <div class="header-subtitle">Montaigne's Court &mdash; Where Wisdom Guides Judgment</div>
+    <div class="header-ornament">&bull; &bull; &bull;</div>
+    <div class="header-case-number">Case No. 2026-SCRUB-001</div>
+    <div class="header-case-title">The People of the Repository v. Two Competing Visions</div>
+    <div class="header-case-parties"><code>team</code> Branch (Defense) &nbsp;v.&nbsp; <code>claude</code> Branch (Prosecution)</div>
+    <div class="header-case-date">Filed: 3 March, 2026</div>
+    <div class="header-epigraph">
+      <blockquote>"The most certain sign of wisdom is cheerfulness."<br><span class="attribution">&mdash; Michel de Montaigne</span></blockquote>
+      <blockquote>"But the most certain sign of engineering wisdom is a passing test suite."<br><span class="attribution">&mdash; The Court</span></blockquote>
+    </div>
+  </header>
+
+  <!-- ======================== OPENING OF COURT ======================== -->
+  <section class="phase-section">
+    <div class="phase-divider"><span class="phase-label">Opening of the Court</span></div>
+    <div class="speaker-block">
+      <div class="speaker-name judge">
+        <span>THE HONORABLE CHIEF JUSTICE REPOSITORY</span>
+        <span class="speaker-role judge-role">Presiding</span>
+      </div>
+      <div class="speaker-text">
+        <p>This Court is now in session. We are convened to adjudicate a matter of considerable consequence to the security and integrity of Claude Code transcripts&mdash;those records which may contain API keys, private credentials, personally identifiable information, and filesystem paths that reveal the architecture of private systems.</p>
+        <p>Before this Court stand two competing implementations of a transcript scrubber, each born from the same Initial Commit (hash: <code>b989056</code>) and each claiming to be the superior instrument of redaction. The question is not merely which codebase is larger or which patterns are more numerous, but which approach better serves the purpose for which this tool was created: <strong>the reliable, extensible, and verifiable removal of sensitive information from Claude Code transcripts.</strong></p>
+        <p><strong>The Defense</strong> represents the <code>team</code> branch (commit <code>7dc4924</code> and descendants), a 4-layer pipeline architecture comprising 2,953 lines of source code across 22 Python modules, backed by 257 passing tests spanning 2,594 lines.</p>
+        <p><strong>The Prosecution</strong> represents the <code>claude</code> branch (commit <code>9595a5d</code> and descendants), a flat-architecture MVP of 1,202 lines across 6 Python modules, offering 39 named patterns covering 20+ providers, HTML format support, and CI integration&mdash;but presenting a test suite of 236 lines in which zero of approximately 30 tests currently pass.</p>
+        <p>Let the record show that both branches share the same origin and the same purpose. Let the record also show that this Court weighs not merely what exists today, but what each architecture portends for tomorrow.</p>
+        <p>The advocates may proceed.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE I: OPENING STATEMENTS ======================== -->
+  <section class="phase-section" id="phase-1">
+    <div class="phase-divider"><span class="phase-label">Phase I &middot; Opening Statements</span></div>
+
+    <div class="advocate-grid">
+      <!-- Defense -->
+      <div class="advocate-card defense">
+        <div class="advocate-header">
+          <div class="advocate-icon">&#9878;</div>
+          <div class="advocate-info">
+            <h3>Mr. Pipeline, Esq.</h3>
+            <span class="branch-label">DEFENSE &mdash; <code>team</code> BRANCH</span>
+          </div>
+        </div>
+        <p class="opening-line">May it please the Court.</p>
+        <p class="opening-line" style="font-style: normal; color: var(--text-primary); font-size: 0.85rem; line-height: 1.65;">The <code>team</code> branch stands before you not as a prototype, not as a sketch, not as a minimum viable aspiration&mdash;but as a <strong>fully operational, rigorously tested, architecturally principled system</strong> for the detection and redaction of sensitive information.</p>
+        <div class="fact-item">
+          <div class="fact-label">FACT THE FIRST: Structural Integrity</div>
+          <div class="fact-text">A classical 4-layer pipeline: Parser, Scanner, Redactor, and Formatter. Each governed by abstract base classes enforcing contracts through the Strategy pattern. New parsers, detectors, and formatters can be added without modifying existing code&mdash;the Open/Closed Principle in living practice.</div>
+        </div>
+        <div class="fact-item">
+          <div class="fact-label">FACT THE SECOND: Test Coverage</div>
+          <div class="fact-text"><strong>257 tests. All passing. In 0.18 seconds.</strong> Across 2,594 lines of test code organized into 12 test modules: <code>test_api_keys.py</code>, <code>test_credentials.py</code>, <code>test_pii.py</code>, <code>test_engine.py</code>, <code>test_jsonl_parser.py</code>, and <code>test_full_pipeline.py</code>. This is testing as covenant.</div>
+        </div>
+        <div class="fact-item">
+          <div class="fact-label">FACT THE THIRD: Correctness Guarantees</div>
+          <div class="fact-text">The <code>RedactionEngine</code> implements overlap resolution&mdash;when two findings occupy intersecting character ranges, the engine resolves conflicts by preferring higher confidence, then longer match, then applying all replacements in reverse order to preserve positional accuracy.</div>
+        </div>
+        <div class="fact-item">
+          <div class="fact-label">FACT THE FOURTH: Stable Numbered Redactions</div>
+          <div class="fact-text">When the <code>team</code> branch replaces <code>sk-ant-abc123</code> with <code>[REDACTED-API-KEY-1]</code>, that number is stable. The same matched text always receives the same numbered placeholder throughout the entire transcript.</div>
+        </div>
+        <div class="fact-item">
+          <div class="fact-label">FACT THE FIFTH: Interactive Review</div>
+          <div class="fact-text">The <code>interactive.py</code> module provides a Rich terminal UI where a human operator can review medium- and low-confidence findings, confirm or skip each one, and persist allowlist entries to the TOML configuration. Security with a human in the loop.</div>
+        </div>
+        <div class="advocate-rest">The Defense rests on its architecture, its tests, and its correctness.</div>
+      </div>
+
+      <!-- Prosecution -->
+      <div class="advocate-card prosecution">
+        <div class="advocate-header">
+          <div class="advocate-icon">&#9878;</div>
+          <div class="advocate-info">
+            <h3>Ms. Pragmatic, Esq.</h3>
+            <span class="branch-label">PROSECUTION &mdash; <code>claude</code> BRANCH</span>
+          </div>
+        </div>
+        <p class="opening-line">May it please the Court.</p>
+        <p class="opening-line" style="font-style: normal; color: var(--text-primary); font-size: 0.85rem; line-height: 1.65;">My learned colleague speaks eloquently of architecture and abstraction. But I would remind the Court that <strong>software that does not ship is software that does not protect.</strong></p>
+        <div class="fact-item">
+          <div class="fact-label">EXHIBIT A: Provider Coverage</div>
+          <div class="fact-text"><strong>39 named patterns</strong> covering providers the <code>team</code> branch does not touch: Google API keys, SendGrid, Twilio, npm tokens, PyPI tokens, Vercel, Supabase, Cloudflare, and Netlify. <em>A pattern you don't have is a vulnerability you can't detect.</em></div>
+        </div>
+        <div class="fact-item">
+          <div class="fact-label">EXHIBIT B: Format Support</div>
+          <div class="fact-text">HTML transcript support via <code>scrub_html()</code>. As browser-based Claude transcript viewers expand, this is not a luxury&mdash;it is a necessity. The <code>team</code> branch supports JSONL and JSON web formats only.</div>
+        </div>
+        <div class="fact-item">
+          <div class="fact-label">EXHIBIT C: Minimal Dependencies</div>
+          <div class="fact-text">One dependency: <code>click>=8.0</code>. The <code>team</code> branch requires <code>click</code>, <code>rich</code>, <code>tomli</code>, and <code>tomli-w</code>&mdash;four dependencies, each an additional node in the supply chain graph. <em>The dependency you don't have is the vulnerability you don't carry.</em></div>
+        </div>
+        <div class="fact-item">
+          <div class="fact-label">EXHIBIT D: CI Integration</div>
+          <div class="fact-text"><code>sys.exit(1)</code> when findings are detected. A <code>pre-commit</code> hook, a GitHub Action, a Jenkins step&mdash;all trivially wired. The <code>team</code> branch lacks this binary pass/fail signal.</div>
+        </div>
+        <div class="fact-item">
+          <div class="fact-label">EXHIBIT E: Variadic File Arguments</div>
+          <div class="fact-text">The <code>claude</code> CLI accepts multiple file paths in a single invocation. The <code>team</code> CLI processes one file at a time.</div>
+        </div>
+        <div class="advocate-rest">The Prosecution rests on its coverage, its pragmatism, and its readiness.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE II: EXPERT TESTIMONY ======================== -->
+  <section class="phase-section" id="phase-2">
+    <div class="phase-divider"><span class="phase-label">Phase II &middot; Expert Witness Testimony</span></div>
+
+    <!-- Witness 1: Security -->
+    <div class="witness-section expanded" id="witness-1">
+      <div class="witness-header" onclick="toggleWitness('witness-1')">
+        <span class="witness-icon">&#128274;</span>
+        <div class="witness-info">
+          <h3>Dr. Constance Lockwell</h3>
+          <span class="witness-title">Security Auditor</span>
+        </div>
+        <span class="witness-toggle">&#9660;</span>
+      </div>
+      <div class="witness-body">
+        <p class="witness-sworn"><em>[The witness is sworn in.]</em></p>
+
+        <div class="testimony-exchange">
+          <div class="testimony-q defense-q">MR. PIPELINE: Dr. Lockwell, you have audited both codebases. Which branch provides stronger protection against credential leakage?</div>
+          <div class="testimony-a">This is a nuanced question. The <code>team</code> branch implements 6 dedicated detector classes&mdash;<code>APIKeyDetector</code>, <code>CredentialsDetector</code>, <code>CryptoDetector</code>, <code>NetworkDetector</code>, <code>PathDetector</code>, and <code>PIIDetector</code>&mdash;organized through a <code>DetectorRegistry</code>. The detection logic is sophisticated: the <code>api_keys.py</code> detector correctly orders Anthropic pattern matching before OpenAI to prevent <code>sk-ant-</code> prefixed keys from matching the generic <code>sk-</code> OpenAI pattern. It also implements allowlist checking to prevent false positives on documentation examples.</div>
+        </div>
+
+        <div class="testimony-exchange">
+          <div class="testimony-q defense-q">MR. PIPELINE: And the <code>claude</code> branch?</div>
+          <div class="testimony-a">The <code>claude</code> branch compensates with breadth. Its 39 named patterns include specific signatures for Google (<code>AIza[0-9A-Za-z-_]{35}</code>), SendGrid, Twilio, npm (<code>npm_[A-Za-z0-9]{36}</code>), PyPI (<code>pypi-[A-Za-z0-9]{40,}</code>), Vercel, Supabase, Cloudflare, and Netlify. These are patterns the <code>team</code> branch simply does not have. In a real-world transcript, the <code>claude</code> branch would catch secrets that the <code>team</code> branch would miss entirely.</div>
+        </div>
+
+        <div class="testimony-exchange">
+          <div class="testimony-q defense-q">MR. PIPELINE: But detection without correct application&mdash;</div>
+          <div class="testimony-a">&mdash;is still better than no detection at all. However, I must note a critical concern: the <code>claude</code> branch performs no overlap resolution. If a string matches two patterns simultaneously, both replacements are attempted, potentially producing garbled output. The <code>team</code> branch's <code>_resolve_overlaps</code> method explicitly handles this. This is a significant correctness advantage.</div>
+        </div>
+
+        <div class="testimony-exchange">
+          <div class="testimony-q prosecution-q">MS. PRAGMATIC: Dr. Lockwell, in your experience, is it more dangerous to have an overlap-resolution bug or to have no pattern at all for a Supabase service role key?</div>
+          <div class="testimony-a">In practice? The missing pattern is more dangerous. A garbled redaction is visible and fixable. A key that passes through entirely undetected is a silent vulnerability.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Witness 2: DevOps -->
+    <div class="witness-section" id="witness-2">
+      <div class="witness-header" onclick="toggleWitness('witness-2')">
+        <span class="witness-icon">&#9881;</span>
+        <div class="witness-info">
+          <h3>Mr. Jenkins Pipeline</h3>
+          <span class="witness-title">DevOps Engineer</span>
+        </div>
+        <span class="witness-toggle">&#9660;</span>
+      </div>
+      <div class="witness-body">
+        <p class="witness-sworn"><em>[The witness is sworn in.]</em></p>
+
+        <div class="testimony-exchange">
+          <div class="testimony-q prosecution-q">MS. PRAGMATIC: Mr. Pipeline&mdash;no relation to the Defense advocate, I trust&mdash;you specialize in CI/CD integration. How do these branches fare in an automated pipeline?</div>
+          <div class="testimony-a">The <code>claude</code> branch is immediately pipeline-ready. Its CLI terminates with <code>sys.exit(1)</code> when findings are detected and <code>sys.exit(0)</code> when clean. This is the universal Unix convention for pass/fail gating. I can drop it into a GitHub Actions workflow, a pre-commit hook, or a Jenkins stage with zero wrapper logic. The <code>team</code> branch's CLI does not provide this binary signal.</div>
+        </div>
+
+        <div class="testimony-exchange">
+          <div class="testimony-q prosecution-q">MS. PRAGMATIC: And the dependency story?</div>
+          <div class="testimony-a">Fewer dependencies mean faster builds, smaller container images, and a reduced attack surface. The <code>claude</code> branch depends only on <code>click</code>. The <code>team</code> branch adds <code>rich</code>, <code>tomli</code>, and <code>tomli-w</code>. The <code>rich</code> library alone pulls in <code>pygments</code> and <code>markdown-it-py</code> transitively. That said, <code>rich</code> provides genuine value for the interactive review mode.</div>
+        </div>
+
+        <div class="testimony-exchange">
+          <div class="testimony-q defense-q">MR. PIPELINE: Does the <code>team</code> branch's test suite provide CI value the <code>claude</code> branch cannot match?</div>
+          <div class="testimony-a">Absolutely. 257 passing tests that run in 0.18 seconds. That is a regression gate. Every pull request, every commit can be validated against a comprehensive test matrix. The <code>claude</code> branch has 0 passing tests. In CI terms, it has no regression safety net. This is a severe operational deficit.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Witness 3: Open Source -->
+    <div class="witness-section" id="witness-3">
+      <div class="witness-header" onclick="toggleWitness('witness-3')">
+        <span class="witness-icon">&#127760;</span>
+        <div class="witness-info">
+          <h3>Ms. Flora Opensrc</h3>
+          <span class="witness-title">Open Source Maintainer</span>
+        </div>
+        <span class="witness-toggle">&#9660;</span>
+      </div>
+      <div class="witness-body">
+        <p class="witness-sworn"><em>[The witness is sworn in.]</em></p>
+
+        <div class="testimony-exchange">
+          <div class="testimony-q defense-q">MR. PIPELINE: Ms. Opensrc, from a project health and contributor experience perspective, how do you evaluate these branches?</div>
+          <div class="testimony-a">The <code>team</code> branch is the one I would want to inherit as a maintainer. The 4-layer architecture with abstract base classes means I can onboard a contributor and say: "Write a new detector? Extend <code>BaseDetector</code>, implement <code>name</code>, <code>category</code>, <code>confidence</code>, and <code>scan</code>, register it, and add tests." The contract is explicit. The pattern is repeatable.</div>
+        </div>
+
+        <div class="testimony-exchange">
+          <div class="testimony-q prosecution-q">MS. PRAGMATIC: But what about the <code>claude</code> branch for a solo developer?</div>
+          <div class="testimony-a">For immediate use, the <code>claude</code> branch is more accessible. Its flat structure&mdash;6 files, no subpackages&mdash;means a developer can read the entire codebase in under an hour. The <code>patterns.py</code> file is essentially declarative: add a new <code>PatternDef</code> and you are done. But this simplicity is also its ceiling. Without the parser/scanner/redactor separation, adding a new format requires modifying the <code>Scrubber</code> class itself. The flat structure scales to perhaps 50 patterns; after that, a single file becomes unwieldy.</div>
+        </div>
+
+        <div class="testimony-exchange">
+          <div class="testimony-a">I will also note that the <code>team</code> branch's <code>allowlists.py</code> represents mature false-positive management: <code>SAFE_IPV4</code> ranges (RFC 5737 TEST-NET addresses), <code>SAFE_EMAILS</code> (documentation addresses), <code>SAFE_DOMAINS</code> (RFC 2606 reserved names), and <code>SAFE_PLACEHOLDER_VALUES</code>. The <code>claude</code> branch has no equivalent.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE III: CROSS-EXAMINATION ======================== -->
+  <section class="phase-section" id="phase-3">
+    <div class="phase-divider"><span class="phase-label">Phase III &middot; Cross-Examination</span></div>
+
+    <div class="cross-grid">
+      <!-- Prosecution attacks Defense -->
+      <div class="cross-card prosecution-attacks">
+        <h3>&#9888; The Prosecution Cross-Examines the Defense</h3>
+
+        <div class="cross-point">
+          <strong>Missing Patterns</strong>
+          The <code>team</code> branch cannot detect Google API keys, SendGrid keys, npm tokens, PyPI tokens, Vercel tokens, Supabase keys, Cloudflare tokens, or Netlify tokens. These are not obscure services&mdash;they are the bread and butter of modern cloud development.
+        </div>
+
+        <div class="cross-point">
+          <strong>No HTML Support</strong>
+          The <code>team</code> branch cannot process HTML transcripts. As the Claude ecosystem evolves, a new <code>BaseParser</code> implementation would be required with full <code>can_parse</code>, <code>parse</code>, and <code>reconstruct</code> methods plus tests. The <code>claude</code> branch handles HTML <em>today</em>.
+        </div>
+
+        <div class="cross-point">
+          <strong>No CI Gate</strong>
+          No <code>sys.exit(1)</code>. A DevOps engineer must write a wrapper to integrate this tool into any pipeline.
+        </div>
+
+        <div class="cross-closing">
+          The Defense celebrates its architecture. I ask: architecture in service of what? <strong>The finest cathedral is of little use if it lacks a door.</strong>
+        </div>
+      </div>
+
+      <!-- Defense attacks Prosecution -->
+      <div class="cross-card defense-attacks">
+        <h3>&#9888; The Defense Cross-Examines the Prosecution</h3>
+
+        <div class="cross-point">
+          <strong>Zero Passing Tests</strong>
+          Not one test in <code>test_scrubber.py</code> (236 lines) successfully executes. Broken imports. Missing fixtures. This is evidence of a development process that did not prioritize verification. In security, unverified code is untrusted code.
+        </div>
+
+        <div class="cross-point">
+          <strong>No Overlap Resolution</strong>
+          When patterns collide&mdash;and they <em>will</em> with 39 patterns including broad context-matchers&mdash;the result is undefined. Nested redaction placeholders. Garbled output. The <code>team</code> branch solves this definitively.
+        </div>
+
+        <div class="cross-point">
+          <strong>No Stable Numbering</strong>
+          A replaced key is simply <code>[REDACTED]</code> without numbering. A reader cannot determine whether the same credential appears on page 1 and page 47. For audits, incident response, and forensics&mdash;this traceability is essential.
+        </div>
+
+        <div class="cross-point">
+          <strong>No Interactive Review</strong>
+          Every finding is applied automatically. False positive on a medium-confidence pattern? Redacted without appeal. No human in the loop.
+        </div>
+
+        <div class="cross-closing">
+          My colleague celebrates her 39 patterns. I ask: <strong>what good are 39 patterns if you cannot prove a single one of them works?</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== PHASE IV: JURY DELIBERATION ======================== -->
+  <section class="phase-section" id="phase-4">
+    <div class="phase-divider"><span class="phase-label">Phase IV &middot; Jury Deliberation</span></div>
+    <p style="font-style: italic; color: var(--text-dim); margin-bottom: 1.5rem; font-size: 0.88rem;">The jury retires to chambers. The following is a transcript of their deliberations.</p>
+
+    <div class="jury-grid">
+      <!-- Juror 1 -->
+      <div class="juror-card" style="animation-delay: 0.1s;">
+        <div class="juror-header">
+          <div class="juror-avatar">&#128187;</div>
+          <div class="juror-info">
+            <h3>Mr. Alex Chen</h3>
+            <span class="juror-title">Startup Founder &mdash; 12-person company</span>
+          </div>
+          <div class="juror-vote leans-claude">Leans claude</div>
+        </div>
+        <div class="juror-deliberation">
+          <p>I run a 12-person startup. We use Claude Code daily. Our transcripts contain AWS keys, Supabase service role keys, and Vercel tokens. Time is everything.</p>
+          <p>If you put the <code>team</code> branch in front of me, I'd be impressed by the engineering. 257 tests, beautiful architecture. But it doesn't detect Supabase keys. It doesn't detect Vercel tokens. It doesn't gate my CI pipeline. I need to write wrapper scripts and add patterns manually.</p>
+          <p>The <code>claude</code> branch? Broken tests aside, its pattern file <em>names</em> the services I actually use. And <code>sys.exit(1)</code> means I can drop it into my GitHub Actions in five minutes.</p>
+          <p><strong>My vote leans toward the <code>claude</code> branch for <em>today</em>&mdash;but I acknowledge the <code>team</code> branch is where I'd want to be in six months.</strong></p>
+        </div>
+      </div>
+
+      <!-- Juror 2 -->
+      <div class="juror-card" style="animation-delay: 0.2s;">
+        <div class="juror-header">
+          <div class="juror-avatar">&#128295;</div>
+          <div class="juror-info">
+            <h3>Ms. Diana Rossi</h3>
+            <span class="juror-title">Senior Engineer &mdash; 15 years experience</span>
+          </div>
+          <div class="juror-vote leans-team">Votes team</div>
+        </div>
+        <div class="juror-deliberation">
+          <p>I've seen too many "repairable in an afternoon" test suites that are still broken six months later. Zero passing tests is a red flag I cannot ignore. Broken tests correlate strongly with broken assumptions in the code itself.</p>
+          <p>The <code>team</code> branch's overlap resolution alone is worth the price of admission. I've debugged chain-redaction bugs before&mdash;where a redaction placeholder matches a subsequent pattern and gets re-redacted. It is subtle, it is maddening, and the <code>team</code> branch has solved it cleanly.</p>
+          <p>Stable numbered redactions also matter. When reviewing a scrubbed transcript for an incident report, I need to know that <code>[REDACTED-API-KEY-1]</code> refers to one specific credential throughout.</p>
+          <p><strong>My vote is for the <code>team</code> branch, with an order requiring the 12 missing provider patterns to be added within a defined remediation period.</strong></p>
+        </div>
+      </div>
+
+      <!-- Juror 3 -->
+      <div class="juror-card" style="animation-delay: 0.3s;">
+        <div class="juror-header">
+          <div class="juror-avatar">&#128202;</div>
+          <div class="juror-info">
+            <h3>Mr. Omar Farid</h3>
+            <span class="juror-title">Product Manager</span>
+          </div>
+          <div class="juror-vote leans-team">Votes team</div>
+        </div>
+        <div class="juror-deliberation">
+          <p>Who is the user? A developer who just realized they pasted their Anthropic API key into a Claude Code session and shared the transcript on Slack. That developer does not care about abstract base classes. They care about one thing: <strong>did the tool catch the key?</strong></p>
+          <p>Both branches catch Anthropic keys. Both catch OpenAI, AWS, GitHub, Slack, Stripe, and HuggingFace. The <code>claude</code> branch additionally catches Google, SendGrid, Twilio, npm, PyPI, Vercel, Supabase, Cloudflare, and Netlify. That is a material difference in user protection.</p>
+          <p>But the user also cares about <strong>trust.</strong> With 257 passing tests, the <code>team</code> branch earns trust through verification. With 0 passing tests, the <code>claude</code> branch asks for trust on faith. In a security tool, faith is insufficient.</p>
+          <p><strong>I choose the <code>team</code> branch&mdash;because I can extend its coverage, but I cannot retroactively inject correctness guarantees into an unverified codebase.</strong></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== THE VERDICT ======================== -->
+  <section class="phase-section" id="verdict">
+    <div class="phase-divider"><span class="phase-label">The Verdict</span></div>
+
+    <div class="speaker-block" style="margin-bottom: 1.5rem;">
+      <div class="speaker-name judge">
+        CHIEF JUSTICE REPOSITORY
+        <span class="speaker-role judge-role">Ruling</span>
+      </div>
+      <div class="speaker-text"><p>The jury has reached its verdict. Let the record reflect the following:</p></div>
+    </div>
+
+    <div class="verdict-box">
+      <div class="verdict-formal">Formal Ruling</div>
+      <div class="verdict-finding">
+        This Court finds in favor of <strong>the <code>team</code> branch</strong>, with conditions and commendations for the <code>claude</code> branch.
+      </div>
+
+      <div class="reasoning-section">
+        <h4>On the Question of Correctness</h4>
+        <p>The <code>team</code> branch's 257 passing tests constitute a verified contract between the code and its claims. The overlap resolution algorithm, the stable numbered redaction map, and the round-trip fidelity tests represent engineering discipline that a security tool demands. The <code>claude</code> branch's zero passing tests render its claims unverifiable and therefore unproven. <em>Unverified security is no security at all.</em></p>
+      </div>
+
+      <div class="reasoning-section">
+        <h4>On the Question of Architecture</h4>
+        <p>The <code>team</code> branch's 4-layer pipeline with abstract base classes (<code>BaseParser</code>, <code>BaseDetector</code>) is not mere over-engineering&mdash;it is the scaffolding upon which extensibility is built. The <code>DetectorRegistry</code> pattern enables new detectors to be added without modifying existing code. This architectural investment pays compound interest over time.</p>
+      </div>
+
+      <div class="reasoning-section">
+        <h4>On the Question of Coverage</h4>
+        <p>This Court recognizes that the <code>claude</code> branch's 39 patterns, covering 20+ providers, represent a <strong>material security advantage</strong> in breadth of detection. The 12 provider patterns absent from the <code>team</code> branch constitute genuine gaps that must be remediated. However, the <code>team</code> branch's architecture was <em>designed precisely to accommodate such additions</em>.</p>
+      </div>
+
+      <div class="reasoning-section">
+        <h4>On the Question of Features</h4>
+        <p>The <code>claude</code> branch's HTML support, CI exit codes, and variadic file arguments are practical capabilities that the <code>team</code> branch should adopt. The <code>team</code> branch's interactive review mode, Rich-formatted output, and allowlist persistence are sophistications that the <code>claude</code> branch cannot replicate without significant restructuring.</p>
+      </div>
+    </div>
+
+    <!-- Court Orders -->
+    <div class="court-orders">
+      <h3>Order of the Court</h3>
+
+      <div class="order-item">
+        <span class="order-num">1</span>
+        <div class="order-text"><strong>The <code>team</code> branch is designated the PRIMARY BRANCH</strong> for continued development, on the strength of its verified correctness, architectural extensibility, and engineering discipline.</div>
+      </div>
+
+      <div class="order-item">
+        <span class="order-num">2</span>
+        <div class="order-text"><strong>The <code>team</code> branch SHALL incorporate</strong> the following from the <code>claude</code> branch within a reasonable remediation period:
+          <ul>
+            <li>The 12+ additional provider patterns (Google API key, SendGrid, Twilio, npm, PyPI, Vercel, Supabase, Cloudflare, Netlify, and others)</li>
+            <li>HTML transcript format support (via a new <code>BaseParser</code> implementation)</li>
+            <li>CI exit code integration (<code>sys.exit(1)</code> on findings)</li>
+            <li>Variadic file argument support in the CLI</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="order-item">
+        <span class="order-num">3</span>
+        <div class="order-text"><strong>The <code>claude</code> branch is COMMENDED</strong> for its pragmatic approach to coverage and its CI-first design philosophy. Its <code>patterns.py</code> file shall serve as the authoritative reference for provider-specific regex patterns during the incorporation process.</div>
+      </div>
+
+      <div class="order-item">
+        <span class="order-num">4</span>
+        <div class="order-text"><strong>The <code>claude</code> branch's test suite</strong> must be repaired or rewritten before any claims of its correctness may be entered into evidence in future proceedings.</div>
+      </div>
+    </div>
+
+    <!-- Precedent -->
+    <div class="precedent-box">
+      <div class="precedent-title">Precedent Established</div>
+      <div class="precedent-text">
+        <strong><em>In re</em> Repository Architecture (2026):</strong> When two implementations compete for primacy, <strong>verified correctness shall outweigh unverified breadth.</strong> An implementation with fewer features but comprehensive tests is preferred over an implementation with more features but no passing tests, provided the verified implementation's architecture permits the missing features to be added. A test suite is not a luxury; it is the foundation upon which trust is built. However, breadth of detection patterns in a security tool constitutes a material contribution that must not be discarded, and the prevailing branch bears the obligation to incorporate proven patterns from the defeated branch.
+      </div>
+    </div>
+
+    <!-- Closing -->
+    <div class="court-closing">
+      <p class="closing-text">This Court recognizes that neither branch, standing alone, represents the complete tool that the security of Claude Code transcripts demands. The <code>team</code> branch provides the foundation; the <code>claude</code> branch provides the frontier. The path forward is synthesis, not selection.</p>
+      <p class="closing-text">Let this proceeding stand as testament to the principle that in matters of security tooling, <strong>the rigor of verification and the breadth of detection are not opposing virtues&mdash;they are complementary obligations.</strong></p>
+
+      <div class="court-adjourned">Court is Adjourned</div>
+
+      <div class="closing-seal">
+        Signed and sealed by order of the High Court of Software Architecture,<br>
+        Montaigne's Court, this 3rd day of March, 2026.
+      </div>
+
+      <div class="closing-montaigne">
+        "Que sais-je?"<br>
+        <span class="attribution">&mdash; But with 257 passing tests, we know at least <em>something.</em></span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ======================== WITNESS TOGGLE ========================
+function toggleWitness(id) {
+  const section = document.getElementById(id);
+  if (section) {
+    section.classList.toggle('expanded');
+  }
+}
+
+// ======================== SIDEBAR SCROLL SPY ========================
+(function() {
+  const sections = document.querySelectorAll('[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+  const sectionIds = Array.from(navItems).map(item => item.getAttribute('data-section'));
+
+  const observerOptions = {
+    root: null,
+    rootMargin: '-20% 0px -60% 0px',
+    threshold: 0
+  };
+
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        if (sectionIds.includes(id)) {
+          navItems.forEach(function(item) {
+            item.classList.remove('active');
+            if (item.getAttribute('data-section') === id) {
+              item.classList.add('active');
+            }
+          });
+        }
+      }
+    });
+  }, observerOptions);
+
+  sectionIds.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) observer.observe(el);
+  });
+
+  // Smooth scroll on nav click
+  navItems.forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('data-section');
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      // Close mobile sidebar
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('visible');
+    });
+  });
+})();
+
+// ======================== MOBILE SIDEBAR ========================
+(function() {
+  const toggle = document.getElementById('mobileToggle');
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('backdrop');
+
+  toggle.addEventListener('click', function() {
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('visible');
+  });
+
+  backdrop.addEventListener('click', function() {
+    sidebar.classList.remove('open');
+    backdrop.classList.remove('visible');
+  });
+})();
+
+// ======================== FADE-IN ON SCROLL ========================
+(function() {
+  const animElements = document.querySelectorAll('.advocate-card, .witness-section, .juror-card, .verdict-box, .order-item, .precedent-box');
+
+  const fadeObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.style.animationPlayState = 'running';
+        fadeObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  animElements.forEach(function(el) {
+    el.style.animationPlayState = 'paused';
+    fadeObserver.observe(el);
+  });
+})();
+</script>
+</body>
+</html>

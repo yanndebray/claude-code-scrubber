@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHOWBOAT Evidence Report</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;line-height:1.6;padding:0 0 4rem}
+.container{max-width:1400px;margin:0 auto;padding:0 1.5rem}
+a{color:#3b82f6;text-decoration:none}
+
+/* Header */
+.pipeline-header{background:#1e293b;border-bottom:1px solid #334155;padding:2.5rem 0;text-align:center}
+.pipeline-title{font-size:2.4rem;font-weight:800;letter-spacing:.08em;background:linear-gradient(135deg,#f97316,#3b82f6,#8b5cf6,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.5rem}
+.pipeline-meta{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;color:#94a3b8;font-size:.85rem;margin-top:.75rem}
+.pipeline-meta span{display:flex;align-items:center;gap:.35rem}
+.pipeline-meta .label{color:#64748b;font-weight:600;text-transform:uppercase;font-size:.7rem;letter-spacing:.06em}
+.motto{color:#f97316;font-style:italic;margin-top:.75rem;font-size:.95rem}
+
+/* Navigation */
+.nav-bar{background:#1e293b;border-bottom:1px solid #334155;position:sticky;top:0;z-index:100;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+.nav-bar .container{display:flex;gap:.25rem;padding:.5rem 1.5rem}
+.nav-btn{background:transparent;border:none;color:#94a3b8;padding:.5rem 1rem;cursor:pointer;font-size:.8rem;border-radius:6px;transition:all .2s;white-space:nowrap}
+.nav-btn:hover,.nav-btn.active{background:#334155;color:#e2e8f0}
+
+/* Sections */
+.section{padding:2.5rem 0}
+.section-title{font-size:1.4rem;font-weight:700;color:#e2e8f0;margin-bottom:1.25rem;display:flex;align-items:center;gap:.6rem}
+.section-num{background:#334155;color:#94a3b8;font-size:.75rem;padding:.15rem .55rem;border-radius:4px;font-weight:600}
+
+/* Cards */
+.card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:1.5rem;transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.card-title{font-size:1rem;font-weight:600;color:#94a3b8;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.04em;font-size:.8rem}
+
+/* Grids */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+/* Tables */
+.data-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.85rem}
+.data-table th{background:#334155;color:#94a3b8;text-transform:uppercase;font-size:.7rem;letter-spacing:.06em;padding:.65rem 1rem;text-align:left;font-weight:600;border-bottom:2px solid #475569;position:sticky;top:0}
+.data-table th:first-child{border-radius:8px 0 0 0}
+.data-table th:last-child{border-radius:0 8px 0 0}
+.data-table td{padding:.6rem 1rem;border-bottom:1px solid #1e293b}
+.data-table tr:hover td{background:#1e293b}
+.data-table tbody tr:nth-child(even) td{background:rgba(30,41,59,.5)}
+.data-table tbody tr:hover td{background:#334155}
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid #334155;background:#0f172a}
+
+/* Big Numbers */
+.big-num{font-size:2.8rem;font-weight:800;line-height:1}
+.big-label{font-size:.75rem;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-top:.25rem}
+
+/* Status badges */
+.badge{display:inline-block;padding:.15rem .55rem;border-radius:4px;font-size:.7rem;font-weight:600;letter-spacing:.03em}
+.badge-green{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+.badge-red{background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.3)}
+.badge-blue{background:rgba(59,130,246,.15);color:#3b82f6;border:1px solid rgba(59,130,246,.3)}
+.badge-orange{background:rgba(249,115,22,.15);color:#f97316;border:1px solid rgba(249,115,22,.3)}
+.badge-gray{background:rgba(148,163,184,.1);color:#94a3b8;border:1px solid rgba(148,163,184,.2)}
+
+/* Check/X */
+.check{color:#4ade80;font-weight:700}
+.fail{color:#f87171;font-weight:700}
+.neutral{color:#94a3b8}
+
+/* Bars */
+.bar-track{background:#334155;border-radius:6px;height:8px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:6px;transition:width 1.5s ease}
+.bar-fill.blue{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.bar-fill.orange{background:linear-gradient(90deg,#f97316,#fb923c)}
+.bar-fill.green{background:linear-gradient(90deg,#4ade80,#86efac)}
+.bar-fill.red{background:linear-gradient(90deg,#f87171,#fca5a5)}
+
+/* Error box */
+.error-box{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:1rem;font-family:'SF Mono',Menlo,Monaco,Consolas,monospace;font-size:.8rem;color:#fca5a5;overflow-x:auto;white-space:pre;line-height:1.5}
+.success-box{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.3);border-radius:8px;padding:1.25rem;text-align:center}
+.success-box .big-num{color:#4ade80}
+
+/* Tree */
+.tree{font-family:'SF Mono',Menlo,Monaco,Consolas,monospace;font-size:.8rem;color:#94a3b8;line-height:1.8;padding:.75rem;background:#0f172a;border-radius:8px;border:1px solid #334155}
+.tree .dir{color:#3b82f6;font-weight:600}
+.tree .file{color:#e2e8f0}
+
+/* Timeline */
+.timeline{position:relative;padding-left:2rem}
+.timeline::before{content:'';position:absolute;left:.6rem;top:0;bottom:0;width:2px;background:#334155}
+.timeline-item{position:relative;margin-bottom:1rem;padding-left:1.5rem}
+.timeline-item::before{content:'';position:absolute;left:-1.65rem;top:.45rem;width:10px;height:10px;border-radius:50%;border:2px solid #3b82f6;background:#0f172a}
+.timeline-item.orange::before{border-color:#f97316}
+.timeline-hash{font-family:'SF Mono',Menlo,Monaco,Consolas,monospace;color:#64748b;font-size:.75rem}
+.timeline-msg{color:#e2e8f0;font-size:.85rem}
+.timeline-date{color:#64748b;font-size:.7rem}
+
+/* Delta colors */
+.delta-pos{color:#4ade80}
+.delta-neg{color:#f87171}
+.delta-zero{color:#64748b}
+.delta-feat{color:#f97316}
+
+/* Pattern columns */
+.pattern-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+@media(max-width:900px){.pattern-cols{grid-template-columns:1fr}}
+.pattern-list{max-height:420px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#334155 transparent}
+.pattern-list::-webkit-scrollbar{width:6px}
+.pattern-list::-webkit-scrollbar-track{background:transparent}
+.pattern-list::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+.pattern-row{display:flex;justify-content:space-between;align-items:center;padding:.4rem .75rem;border-bottom:1px solid rgba(51,65,85,.4);font-size:.8rem}
+.pattern-row:hover{background:rgba(51,65,85,.3)}
+
+/* Feature matrix special */
+.feat-yes{background:rgba(74,222,128,.12);text-align:center}
+.feat-no{background:rgba(248,113,113,.07);text-align:center}
+
+/* Animated counter */
+.counter{display:inline-block}
+
+/* Responsive table scroll hint */
+.scroll-hint{color:#64748b;font-size:.7rem;text-align:right;margin-bottom:.35rem;display:none}
+@media(max-width:900px){.scroll-hint{display:block}}
+
+/* Separator */
+.sep{height:1px;background:linear-gradient(90deg,transparent,#334155,transparent);margin:0}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="pipeline-header">
+  <div class="container">
+    <div class="pipeline-title">SHOWBOAT EVIDENCE REPORT</div>
+    <div class="pipeline-meta">
+      <span><span class="label">Pipeline</span> claude-code-scrubber branch comparison</span>
+      <span><span class="label">Date</span> 2026-03-03</span>
+      <span><span class="label">Branches</span> <code style="color:#f97316">claude</code> vs <code style="color:#3b82f6">team</code></span>
+    </div>
+    <div class="motto">"Here are the facts; judge for yourself."</div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="nav-bar">
+  <div class="container">
+    <button class="nav-btn active" onclick="scrollToSection('collection')">Collection Log</button>
+    <button class="nav-btn" onclick="scrollToSection('metrics')">Source Metrics</button>
+    <button class="nav-btn" onclick="scrollToSection('tests')">Test Results</button>
+    <button class="nav-btn" onclick="scrollToSection('patterns')">Patterns</button>
+    <button class="nav-btn" onclick="scrollToSection('deps')">Dependencies</button>
+    <button class="nav-btn" onclick="scrollToSection('features')">Feature Matrix</button>
+    <button class="nav-btn" onclick="scrollToSection('commits')">Commits</button>
+    <button class="nav-btn" onclick="scrollToSection('dimensions')">Dimensions</button>
+  </div>
+</nav>
+
+<!-- 1. EVIDENCE COLLECTION LOG -->
+<div class="sep"></div>
+<section class="section" id="collection">
+  <div class="container">
+    <h2 class="section-title"><span class="section-num">01</span> Evidence Collection Log</h2>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Capture</th><th>Command</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Diff stats</td><td><code>git diff --stat main...{team,claude}</code></td><td><span class="badge badge-green">Collected</span></td></tr>
+          <tr><td>2</td><td>Commit history</td><td><code>git log --oneline main...{team,claude}</code></td><td><span class="badge badge-green">Collected</span></td></tr>
+          <tr><td>3</td><td>File/function/class counts</td><td><code>git ls-tree, grep, wc -l</code></td><td><span class="badge badge-green">Collected</span></td></tr>
+          <tr><td>4</td><td>Claude branch tests</td><td><code>python -m pytest src/claude_code_scrubber/test_scrubber.py</code></td><td><span class="badge badge-red">Collected (FAIL)</span></td></tr>
+          <tr><td>5</td><td>Team branch tests</td><td><code>pip install -e ".[dev]" && python -m pytest tests/ -v</code></td><td><span class="badge badge-green">Collected (PASS)</span></td></tr>
+          <tr><td>6</td><td>Pattern inventory</td><td><code>grep for pattern definitions</code></td><td><span class="badge badge-green">Collected</span></td></tr>
+          <tr><td>7</td><td>Dependency audit</td><td><code>git show {branch}:pyproject.toml</code></td><td><span class="badge badge-green">Collected</span></td></tr>
+          <tr><td>8</td><td>Feature matrix</td><td><code>CLI options, modules, capabilities</code></td><td><span class="badge badge-green">Collected</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:.75rem;text-align:right;color:#64748b;font-size:.75rem">8 / 8 captures complete &mdash; 7 clean, 1 failure recorded</div>
+  </div>
+</section>
+
+<!-- 2. SOURCE METRICS -->
+<div class="sep"></div>
+<section class="section" id="metrics">
+  <div class="container">
+    <h2 class="section-title"><span class="section-num">02</span> Source Metrics Dashboard</h2>
+
+    <!-- Big number cards -->
+    <div class="grid-2" style="margin-bottom:1.5rem">
+      <div class="card" style="text-align:center;border-color:rgba(249,115,22,.3)">
+        <div class="card-title" style="color:#f97316">claude branch</div>
+        <div class="big-num counter" data-target="966" style="color:#f97316">0</div>
+        <div class="big-label">source lines (excl. tests)</div>
+        <div style="display:flex;justify-content:center;gap:2rem;margin-top:1rem">
+          <div><span style="font-size:1.4rem;font-weight:700;color:#e2e8f0" class="counter" data-target="6">0</span><div class="big-label">files</div></div>
+          <div><span style="font-size:1.4rem;font-weight:700;color:#e2e8f0" class="counter" data-target="55">0</span><div class="big-label">functions</div></div>
+          <div><span style="font-size:1.4rem;font-weight:700;color:#e2e8f0" class="counter" data-target="11">0</span><div class="big-label">classes</div></div>
+        </div>
+      </div>
+      <div class="card" style="text-align:center;border-color:rgba(59,130,246,.3)">
+        <div class="card-title" style="color:#3b82f6">team branch</div>
+        <div class="big-num counter" data-target="2953" style="color:#3b82f6">0</div>
+        <div class="big-label">source lines</div>
+        <div style="display:flex;justify-content:center;gap:2rem;margin-top:1rem">
+          <div><span style="font-size:1.4rem;font-weight:700;color:#e2e8f0" class="counter" data-target="22">0</span><div class="big-label">files</div></div>
+          <div><span style="font-size:1.4rem;font-weight:700;color:#e2e8f0" class="counter" data-target="107">0</span><div class="big-label">functions</div></div>
+          <div><span style="font-size:1.4rem;font-weight:700;color:#e2e8f0" class="counter" data-target="22">0</span><div class="big-label">classes</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- File count bars -->
+    <div class="grid-2" style="margin-bottom:1.5rem">
+      <div class="card">
+        <div class="card-title">Lines vs Main</div>
+        <div style="margin-bottom:.75rem">
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem"><span style="color:#f97316">claude</span><span>+1,745 lines / 11 files</span></div>
+          <div class="bar-track"><div class="bar-fill orange" style="width:0%" data-width="22%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem"><span style="color:#3b82f6">team</span><span>+7,861 lines / 59 files</span></div>
+          <div class="bar-track"><div class="bar-fill blue" style="width:0%" data-width="100%"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Source File Count</div>
+        <div style="margin-bottom:.75rem">
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem"><span style="color:#f97316">claude</span><span>6 files</span></div>
+          <div class="bar-track"><div class="bar-fill orange" style="width:0%" data-width="27%"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem"><span style="color:#3b82f6">team</span><span>22 files</span></div>
+          <div class="bar-track"><div class="bar-fill blue" style="width:0%" data-width="100%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture diagrams -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Architecture &mdash; claude (flat)</div>
+        <div class="tree">
+<span class="dir">src/claude_code_scrubber/</span>
+    <span class="file">__init__.py</span> <span style="color:#64748b">........... 3</span>
+    <span class="file">cli.py</span> <span style="color:#64748b">................ 252</span>
+    <span class="file">config.py</span> <span style="color:#64748b">............. 105</span>
+    <span class="file">patterns.py</span> <span style="color:#64748b">........... 358</span>
+    <span class="file">scrubber.py</span> <span style="color:#64748b">........... 248</span>
+    <span class="file">test_scrubber.py</span> <span style="color:#64748b">...... 236</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Architecture &mdash; team (nested)</div>
+        <div class="tree">
+<span class="dir">src/transcript_scrub/</span>
+    <span class="file">__init__.py</span>    <span class="file">allowlists.py</span>
+    <span class="file">cli.py</span>         <span class="file">config.py</span>     <span class="file">models.py</span>
+    <span class="dir">parser/</span>
+        <span class="file">__init__.py</span>  <span class="file">base.py</span>
+        <span class="file">json_web.py</span>  <span class="file">jsonl.py</span>
+    <span class="dir">redactor/</span>
+        <span class="file">__init__.py</span>  <span class="file">engine.py</span>
+        <span class="file">formatter.py</span> <span class="file">interactive.py</span>
+    <span class="dir">scanner/</span>
+        <span class="file">__init__.py</span>  <span class="file">api_keys.py</span>  <span class="file">base.py</span>
+        <span class="file">credentials.py</span> <span class="file">crypto.py</span>
+        <span class="file">network.py</span>  <span class="file">paths.py</span>
+        <span class="file">pii.py</span>      <span class="file">registry.py</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- File Breakdown Tables -->
+    <div class="grid-2" style="margin-top:1.5rem">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:1rem 1.25rem .5rem"><div class="card-title" style="margin-bottom:0">claude file breakdown</div></div>
+        <table class="data-table">
+          <thead><tr><th>File</th><th style="text-align:right">Lines</th></tr></thead>
+          <tbody>
+            <tr><td><code>__init__.py</code></td><td style="text-align:right">3</td></tr>
+            <tr><td><code>cli.py</code></td><td style="text-align:right">252</td></tr>
+            <tr><td><code>config.py</code></td><td style="text-align:right">105</td></tr>
+            <tr><td><code>patterns.py</code></td><td style="text-align:right">358</td></tr>
+            <tr><td><code>scrubber.py</code></td><td style="text-align:right">248</td></tr>
+            <tr><td><code>test_scrubber.py</code></td><td style="text-align:right">236</td></tr>
+            <tr style="font-weight:700;border-top:2px solid #475569"><td>Total</td><td style="text-align:right">1,202</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="padding:1rem 1.25rem .5rem"><div class="card-title" style="margin-bottom:0">team file breakdown</div></div>
+        <table class="data-table">
+          <thead><tr><th>File</th><th style="text-align:right">Lines</th></tr></thead>
+          <tbody>
+            <tr><td><code>__init__.py</code></td><td style="text-align:right">3</td></tr>
+            <tr><td><code>allowlists.py</code></td><td style="text-align:right">114</td></tr>
+            <tr><td><code>cli.py</code></td><td style="text-align:right">300</td></tr>
+            <tr><td><code>config.py</code></td><td style="text-align:right">131</td></tr>
+            <tr><td><code>models.py</code></td><td style="text-align:right">115</td></tr>
+            <tr><td><code>parser/__init__.py</code></td><td style="text-align:right">80</td></tr>
+            <tr><td><code>parser/base.py</code></td><td style="text-align:right">35</td></tr>
+            <tr><td><code>parser/json_web.py</code></td><td style="text-align:right">150</td></tr>
+            <tr><td><code>parser/jsonl.py</code></td><td style="text-align:right">263</td></tr>
+            <tr><td><code>redactor/__init__.py</code></td><td style="text-align:right">15</td></tr>
+            <tr><td><code>redactor/engine.py</code></td><td style="text-align:right">284</td></tr>
+            <tr><td><code>redactor/formatter.py</code></td><td style="text-align:right">149</td></tr>
+            <tr><td><code>redactor/interactive.py</code></td><td style="text-align:right">127</td></tr>
+            <tr><td><code>scanner/__init__.py</code></td><td style="text-align:right">48</td></tr>
+            <tr><td><code>scanner/api_keys.py</code></td><td style="text-align:right">138</td></tr>
+            <tr><td><code>scanner/base.py</code></td><td style="text-align:right">55</td></tr>
+            <tr><td><code>scanner/credentials.py</code></td><td style="text-align:right">186</td></tr>
+            <tr><td><code>scanner/crypto.py</code></td><td style="text-align:right">152</td></tr>
+            <tr><td><code>scanner/network.py</code></td><td style="text-align:right">202</td></tr>
+            <tr><td><code>scanner/paths.py</code></td><td style="text-align:right">125</td></tr>
+            <tr><td><code>scanner/pii.py</code></td><td style="text-align:right">197</td></tr>
+            <tr><td><code>scanner/registry.py</code></td><td style="text-align:right">84</td></tr>
+            <tr style="font-weight:700;border-top:2px solid #475569"><td>Total</td><td style="text-align:right">2,953</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. TEST RESULTS -->
+<div class="sep"></div>
+<section class="section" id="tests">
+  <div class="container">
+    <h2 class="section-title"><span class="section-num">03</span> Test Results Panel</h2>
+    <div class="grid-2">
+      <!-- Claude Tests -->
+      <div class="card" style="border-color:rgba(248,113,113,.3)">
+        <div class="card-title" style="color:#f87171">claude branch &mdash; FAIL</div>
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+          <div style="font-size:2rem;font-weight:800;color:#f87171">0 / 30</div>
+          <div style="font-size:.8rem;color:#94a3b8">tests passed<br>(SyntaxError during collection)</div>
+        </div>
+        <div class="error-box">File "src/claude_code_scrubber/test_scrubber.py", line 223
+    from claude-code-scrubber.scrubber import ScrubReport
+                 ^
+SyntaxError: invalid syntax</div>
+        <div style="margin-top:.75rem;font-size:.8rem;color:#94a3b8">
+          <strong>Observation:</strong> The test file contains an invalid Python import statement &mdash; hyphens are not valid in Python identifiers. This prevents test collection entirely. 30 test functions are defined but none can execute.
+        </div>
+        <div style="margin-top:1rem">
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#64748b;margin-bottom:.25rem"><span>Test files</span><span>1</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#64748b;margin-bottom:.25rem"><span>Test functions</span><span>30 (defined, none run)</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#64748b;margin-bottom:.25rem"><span>Test lines</span><span>236</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#64748b;margin-bottom:.25rem"><span>Fixtures</span><span>0</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#64748b"><span>conftest.py</span><span>No</span></div>
+        </div>
+      </div>
+
+      <!-- Team Tests -->
+      <div class="card" style="border-color:rgba(74,222,128,.3)">
+        <div class="card-title" style="color:#4ade80">team branch &mdash; PASS</div>
+        <div class="success-box">
+          <div class="big-num" style="font-size:2.4rem">257 / 257</div>
+          <div class="big-label" style="color:#4ade80;margin-top:.35rem">ALL TESTS PASSED</div>
+          <div style="color:#64748b;font-size:.75rem;margin-top:.25rem">0.25s runtime</div>
+        </div>
+        <div style="margin-top:1rem;font-size:.8rem">
+          <div class="card-title" style="font-size:.7rem;margin-bottom:.5rem">Module Breakdown</div>
+          <div style="display:grid;gap:.35rem">
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_scanner/test_api_keys.py</span><span class="check">PASS</span></div>
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_scanner/test_credentials.py</span><span class="check">PASS</span></div>
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_scanner/test_crypto.py</span><span class="check">PASS</span></div>
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_scanner/test_network.py</span><span class="check">PASS</span></div>
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_scanner/test_paths.py</span><span class="check">PASS</span></div>
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_scanner/test_pii.py</span><span class="check">PASS</span></div>
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_redactor/test_engine.py</span><span class="check">PASS</span></div>
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_redactor/test_cli.py</span><span class="check">PASS</span></div>
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_redactor/test_config.py</span><span class="check">PASS</span></div>
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_parser/test_jsonl_parser.py</span><span class="check">PASS</span></div>
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_parser/test_json_web_parser.py</span><span class="check">PASS</span></div>
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_integration/test_cli.py</span><span class="check">PASS</span></div>
+            <div style="display:flex;justify-content:space-between;padding:.3rem .5rem;background:rgba(74,222,128,.05);border-radius:4px"><span>test_integration/test_full_pipeline.py</span><span class="check">PASS</span></div>
+          </div>
+        </div>
+        <div style="margin-top:1rem">
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#64748b;margin-bottom:.25rem"><span>Test files</span><span>14</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#64748b;margin-bottom:.25rem"><span>Test functions</span><span>257</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#64748b;margin-bottom:.25rem"><span>Test lines</span><span>2,594</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#64748b;margin-bottom:.25rem"><span>Fixtures</span><span>7 data files</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#64748b"><span>conftest.py</span><span>Yes (118 lines)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. PATTERN INVENTORY -->
+<div class="sep"></div>
+<section class="section" id="patterns">
+  <div class="container">
+    <h2 class="section-title"><span class="section-num">04</span> Pattern Inventory</h2>
+
+    <!-- Coverage comparison bar -->
+    <div class="card" style="margin-bottom:1.5rem">
+      <div class="card-title">Pattern Coverage by Category</div>
+      <div style="display:grid;gap:.75rem">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem"><span>API Keys</span><span style="color:#f97316">claude: 21</span> / <span style="color:#3b82f6">team: 13</span></div>
+          <div style="display:flex;gap:4px">
+            <div class="bar-track" style="flex:21"><div class="bar-fill orange" style="width:0%" data-width="100%"></div></div>
+            <div class="bar-track" style="flex:21"><div class="bar-fill blue" style="width:0%" data-width="62%"></div></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem"><span>Credentials</span><span style="color:#f97316">claude: 4</span> / <span style="color:#3b82f6">team: 9</span></div>
+          <div style="display:flex;gap:4px">
+            <div class="bar-track" style="flex:9"><div class="bar-fill orange" style="width:0%" data-width="44%"></div></div>
+            <div class="bar-track" style="flex:9"><div class="bar-fill blue" style="width:0%" data-width="100%"></div></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem"><span>Crypto</span><span style="color:#f97316">claude: 2</span> / <span style="color:#3b82f6">team: 4</span></div>
+          <div style="display:flex;gap:4px">
+            <div class="bar-track" style="flex:4"><div class="bar-fill orange" style="width:0%" data-width="50%"></div></div>
+            <div class="bar-track" style="flex:4"><div class="bar-fill blue" style="width:0%" data-width="100%"></div></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem"><span>Network</span><span style="color:#f97316">claude: 3</span> / <span style="color:#3b82f6">team: 6</span></div>
+          <div style="display:flex;gap:4px">
+            <div class="bar-track" style="flex:6"><div class="bar-fill orange" style="width:0%" data-width="50%"></div></div>
+            <div class="bar-track" style="flex:6"><div class="bar-fill blue" style="width:0%" data-width="100%"></div></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem"><span>Paths</span><span style="color:#f97316">claude: 5</span> / <span style="color:#3b82f6">team: 3</span></div>
+          <div style="display:flex;gap:4px">
+            <div class="bar-track" style="flex:5"><div class="bar-fill orange" style="width:0%" data-width="100%"></div></div>
+            <div class="bar-track" style="flex:5"><div class="bar-fill blue" style="width:0%" data-width="60%"></div></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.25rem"><span>PII</span><span style="color:#f97316">claude: 3</span> / <span style="color:#3b82f6">team: 6</span></div>
+          <div style="display:flex;gap:4px">
+            <div class="bar-track" style="flex:6"><div class="bar-fill orange" style="width:0%" data-width="50%"></div></div>
+            <div class="bar-track" style="flex:6"><div class="bar-fill blue" style="width:0%" data-width="100%"></div></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:2rem;margin-top:1rem;font-size:.75rem;color:#64748b">
+        <span><span style="display:inline-block;width:10px;height:10px;background:#f97316;border-radius:2px;margin-right:.25rem"></span> claude (40 total)</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#3b82f6;border-radius:2px;margin-right:.25rem"></span> team (41 total)</span>
+      </div>
+    </div>
+
+    <!-- Pattern lists -->
+    <div class="pattern-cols">
+      <div class="card">
+        <div class="card-title" style="color:#f97316">claude &mdash; 40 Named Patterns</div>
+        <div class="pattern-list">
+          <div class="pattern-row"><span>Anthropic API key</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>OpenAI API key</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>OpenAI project key</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>GitHub token (classic)</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>GitHub OAuth token</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>GitHub App token</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>GitHub fine-grained PAT</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>AWS access key</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>AWS secret key</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>Google API key</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>Slack token</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>Stripe key</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>HuggingFace token</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>npm token</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>PyPI token</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>Vercel token</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>Supabase key</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>Cloudflare API token</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>Netlify token</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>SendGrid key</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>Twilio key</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>Generic secret assignment</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row"><span>Bearer token</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row"><span>Basic auth header</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row"><span>Private key block</span><span class="badge badge-blue">Crypto</span></div>
+          <div class="pattern-row"><span>JWT token</span><span class="badge badge-blue">Crypto</span></div>
+          <div class="pattern-row"><span>Database connection string</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row"><span>Claude .credentials.json content</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row"><span>Email address</span><span class="badge badge-gray">PII</span></div>
+          <div class="pattern-row"><span>Username in general text</span><span class="badge badge-gray">PII</span></div>
+          <div class="pattern-row"><span>Shell prompt with user@host</span><span class="badge badge-gray">PII</span></div>
+          <div class="pattern-row"><span>Home directory path (macOS)</span><span class="badge badge-blue">Paths</span></div>
+          <div class="pattern-row"><span>Home directory path (Linux)</span><span class="badge badge-blue">Paths</span></div>
+          <div class="pattern-row"><span>Home directory path (Windows)</span><span class="badge badge-blue">Paths</span></div>
+          <div class="pattern-row"><span>Encoded home path (macOS)</span><span class="badge badge-blue">Paths</span></div>
+          <div class="pattern-row"><span>Encoded home path (Linux)</span><span class="badge badge-blue">Paths</span></div>
+          <div class="pattern-row"><span>Private IPv4 (10.x.x.x)</span><span class="badge badge-green">Network</span></div>
+          <div class="pattern-row"><span>Private IPv4 (172.16-31.x.x)</span><span class="badge badge-green">Network</span></div>
+          <div class="pattern-row"><span>Private IPv4 (192.168.x.x)</span><span class="badge badge-green">Network</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#3b82f6">team &mdash; 41 Compiled Patterns (by module)</div>
+        <div class="pattern-list">
+          <div class="pattern-row" style="background:rgba(51,65,85,.3);font-weight:600;color:#94a3b8"><span>api_keys.py &mdash; 13 patterns</span></div>
+          <div class="pattern-row"><span>anthropic</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>openai</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>aws</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>github</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>github_pat</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>huggingface</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>slack</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>stripe_live</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>stripe_pub_live</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>sendgrid</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>twilio</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>vercel</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row"><span>generic_key</span><span class="badge badge-orange">API Keys</span></div>
+          <div class="pattern-row" style="background:rgba(51,65,85,.3);font-weight:600;color:#94a3b8"><span>credentials.py &mdash; 9 patterns</span></div>
+          <div class="pattern-row"><span>PEM private keys</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row"><span>password assignments</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row"><span>quoted passwords</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row"><span>DB URIs</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row"><span>env secrets</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row"><span>auth headers</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row"><span>cookie sessions</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row"><span>(+2 more)</span><span class="badge badge-red">Credentials</span></div>
+          <div class="pattern-row" style="background:rgba(51,65,85,.3);font-weight:600;color:#94a3b8"><span>crypto.py &mdash; 4 patterns</span></div>
+          <div class="pattern-row"><span>PEM blocks</span><span class="badge badge-blue">Crypto</span></div>
+          <div class="pattern-row"><span>SSH public keys</span><span class="badge badge-blue">Crypto</span></div>
+          <div class="pattern-row"><span>JWTs</span><span class="badge badge-blue">Crypto</span></div>
+          <div class="pattern-row"><span>git credentials</span><span class="badge badge-blue">Crypto</span></div>
+          <div class="pattern-row" style="background:rgba(51,65,85,.3);font-weight:600;color:#94a3b8"><span>network.py &mdash; 6 patterns</span></div>
+          <div class="pattern-row"><span>IPv4</span><span class="badge badge-green">Network</span></div>
+          <div class="pattern-row"><span>IPv6</span><span class="badge badge-green">Network</span></div>
+          <div class="pattern-row"><span>internal hostnames</span><span class="badge badge-green">Network</span></div>
+          <div class="pattern-row"><span>AWS ARNs</span><span class="badge badge-green">Network</span></div>
+          <div class="pattern-row"><span>ECR registries</span><span class="badge badge-green">Network</span></div>
+          <div class="pattern-row"><span>private registries</span><span class="badge badge-green">Network</span></div>
+          <div class="pattern-row" style="background:rgba(51,65,85,.3);font-weight:600;color:#94a3b8"><span>paths.py &mdash; 3 patterns</span></div>
+          <div class="pattern-row"><span>macOS paths</span><span class="badge badge-blue">Paths</span></div>
+          <div class="pattern-row"><span>Linux paths</span><span class="badge badge-blue">Paths</span></div>
+          <div class="pattern-row"><span>Windows paths</span><span class="badge badge-blue">Paths</span></div>
+          <div class="pattern-row" style="background:rgba(51,65,85,.3);font-weight:600;color:#94a3b8"><span>pii.py &mdash; 6 patterns</span></div>
+          <div class="pattern-row"><span>Emails</span><span class="badge badge-gray">PII</span></div>
+          <div class="pattern-row"><span>US phone</span><span class="badge badge-gray">PII</span></div>
+          <div class="pattern-row"><span>international phone</span><span class="badge badge-gray">PII</span></div>
+          <div class="pattern-row"><span>addresses</span><span class="badge badge-gray">PII</span></div>
+          <div class="pattern-row"><span>name context</span><span class="badge badge-gray">PII</span></div>
+          <div class="pattern-row"><span>git author</span><span class="badge badge-gray">PII</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. DEPENDENCY AUDIT -->
+<div class="sep"></div>
+<section class="section" id="deps">
+  <div class="container">
+    <h2 class="section-title"><span class="section-num">05</span> Dependency Audit</h2>
+    <div class="grid-2" style="margin-bottom:1.5rem">
+      <div class="card" style="text-align:center">
+        <div class="card-title" style="color:#f97316">claude &mdash; runtime deps</div>
+        <div class="big-num" style="color:#f97316;font-size:3.5rem" class="counter" data-target="1">1</div>
+        <div class="big-label" style="margin-bottom:1rem">package</div>
+        <div style="display:flex;justify-content:center">
+          <span class="badge badge-orange" style="font-size:.8rem;padding:.3rem .75rem">click &ge; 8.0</span>
+        </div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div class="card-title" style="color:#3b82f6">team &mdash; runtime deps</div>
+        <div class="big-num" style="color:#3b82f6;font-size:3.5rem" class="counter" data-target="4">4</div>
+        <div class="big-label" style="margin-bottom:1rem">packages</div>
+        <div style="display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap">
+          <span class="badge badge-blue" style="font-size:.8rem;padding:.3rem .75rem">click &ge; 8.1</span>
+          <span class="badge badge-blue" style="font-size:.8rem;padding:.3rem .75rem">rich &ge; 13.0</span>
+          <span class="badge badge-blue" style="font-size:.8rem;padding:.3rem .75rem">tomli &ge; 2.0</span>
+          <span class="badge badge-blue" style="font-size:.8rem;padding:.3rem .75rem">tomli-w &ge; 1.0</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Build System Comparison</div>
+      <div class="table-wrap" style="border:none">
+        <table class="data-table">
+          <thead><tr><th>Dimension</th><th style="color:#f97316">claude</th><th style="color:#3b82f6">team</th></tr></thead>
+          <tbody>
+            <tr><td>Build backend</td><td>setuptools</td><td>hatchling</td></tr>
+            <tr><td>Lock file</td><td><span class="neutral">None</span></td><td>uv.lock (359 lines)</td></tr>
+            <tr><td>Python requirement</td><td>&ge; 3.10</td><td>&ge; 3.10</td></tr>
+            <tr><td>Dev dependencies</td><td>pytest, pytest-cov</td><td>pytest &ge; 7.0, pytest-cov &ge; 4.0</td></tr>
+            <tr><td>Package metadata</td><td><span class="check">Yes</span></td><td><span class="fail">No</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. FEATURE MATRIX -->
+<div class="sep"></div>
+<section class="section" id="features">
+  <div class="container">
+    <h2 class="section-title"><span class="section-num">06</span> Feature Matrix</h2>
+    <div class="scroll-hint">Scroll horizontally to see full table &rarr;</div>
+    <div class="table-wrap">
+      <table class="data-table" id="feature-table">
+        <thead>
+          <tr>
+            <th style="min-width:240px">Feature</th>
+            <th style="text-align:center;min-width:100px;color:#f97316">claude</th>
+            <th style="text-align:center;min-width:100px;color:#3b82f6">team</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>CLI framework</td><td class="feat-yes">click</td><td class="feat-yes">click</td></tr>
+          <tr><td><code>scan</code> command</td><td class="feat-yes"><span class="check">YES</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td><code>scrub</code> command</td><td class="feat-yes"><span class="check">YES</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td><code>init</code> command</td><td class="feat-no"><span class="fail">NO</span></td><td class="feat-no"><span class="fail">NO</span></td></tr>
+          <tr><td>Multi-file argument</td><td class="feat-yes"><span class="check">YES</span> (nargs=-1)</td><td class="feat-no"><span class="fail">NO</span></td></tr>
+          <tr><td>In-place editing</td><td class="feat-yes"><span class="check">YES</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Output file/dir</td><td class="feat-yes"><span class="check">YES</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Config file support (TOML)</td><td class="feat-yes"><span class="check">YES</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Sample config file</td><td class="feat-no"><span class="fail">NO</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Interactive review mode</td><td class="feat-no"><span class="fail">NO</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Quiet mode</td><td class="feat-no"><span class="fail">NO</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Verbose mode</td><td class="feat-yes"><span class="check">YES</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Rich terminal output</td><td class="feat-no"><span class="fail">NO</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Allowlists (safe values)</td><td class="feat-no"><span class="fail">NO</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Confidence levels</td><td class="feat-no"><span class="fail">NO</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Parser sub-package</td><td class="feat-no"><span class="neutral">inline</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>JSON web format support</td><td class="feat-no"><span class="fail">NO</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>JSONL format support</td><td class="feat-yes"><span class="check">YES</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Scanner registry (pluggable)</td><td class="feat-no"><span class="fail">NO</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Data model classes</td><td style="text-align:center">1</td><td style="text-align:center"><strong>8</strong></td></tr>
+          <tr><td>Redaction engine</td><td style="text-align:center"><span class="neutral">inline</span></td><td class="feat-yes"><span class="check">separate</span></td></tr>
+          <tr><td>Diff output</td><td class="feat-no"><span class="fail">NO</span></td><td class="feat-yes"><span class="check">YES</span></td></tr>
+          <tr><td>Test suite</td><td class="feat-no"><span class="fail">30 (broken)</span></td><td class="feat-yes"><span class="check">257 (pass)</span></td></tr>
+          <tr><td>Test fixtures</td><td class="feat-no"><span class="fail">0</span></td><td class="feat-yes"><span class="check">7</span></td></tr>
+          <tr><td>Integration tests</td><td class="feat-no"><span class="fail">0</span></td><td class="feat-yes"><span class="check">2 modules</span></td></tr>
+          <tr><td>Documentation files</td><td class="feat-yes"><span class="check">2</span></td><td class="feat-no"><span class="fail">0</span></td></tr>
+          <tr><td>Research notes</td><td class="feat-yes"><span class="check">1</span></td><td class="feat-no"><span class="fail">0</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex;justify-content:center;gap:2rem;margin-top:.75rem;font-size:.75rem;color:#64748b">
+      <span>claude advantages: <strong style="color:#f97316">4</strong></span>
+      <span>team advantages: <strong style="color:#3b82f6">16</strong></span>
+      <span>shared: <strong style="color:#e2e8f0">7</strong></span>
+    </div>
+  </div>
+</section>
+
+<!-- 7. COMMIT TIMELINE -->
+<div class="sep"></div>
+<section class="section" id="commits">
+  <div class="container">
+    <h2 class="section-title"><span class="section-num">07</span> Commit Timeline</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="color:#f97316">claude branch &mdash; 5 commits</div>
+        <div style="font-size:.75rem;color:#64748b;margin-bottom:1rem">2026-03-01 (~5.5 hours)</div>
+        <div class="timeline">
+          <div class="timeline-item orange">
+            <div class="timeline-hash">9595a5d</div>
+            <div class="timeline-msg">feat: add core scrubbing engine and detection patterns for sensitive information</div>
+            <div class="timeline-date">2026-03-01 10:19</div>
+          </div>
+          <div class="timeline-item orange">
+            <div class="timeline-hash">7df493c</div>
+            <div class="timeline-msg">fix: update import paths in test_scrubber.py and transcript-scrubber-prompt.md</div>
+            <div class="timeline-date">2026-03-01 10:22</div>
+          </div>
+          <div class="timeline-item orange">
+            <div class="timeline-hash">6972ac6</div>
+            <div class="timeline-msg">chore: add .gitignore file and update build backend in pyproject.toml</div>
+            <div class="timeline-date">2026-03-01 10:33</div>
+          </div>
+          <div class="timeline-item orange">
+            <div class="timeline-hash">2b335d7</div>
+            <div class="timeline-msg">docs: add PyPI badge to README for package version visibility</div>
+            <div class="timeline-date">2026-03-01 10:44</div>
+          </div>
+          <div class="timeline-item orange">
+            <div class="timeline-hash">ab85311</div>
+            <div class="timeline-msg">Research with Claude chat app</div>
+            <div class="timeline-date">2026-03-01 15:45</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:#3b82f6">team branch &mdash; 3 commits</div>
+        <div style="font-size:.75rem;color:#64748b;margin-bottom:1rem">2026-03-01 (1 code + 2 analysis)</div>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-hash">7dc4924</div>
+            <div class="timeline-msg">Add claude-code-scrubber: CLI tool to scrub sensitive info from Claude Code transcripts</div>
+            <div class="timeline-date">2026-03-01 10:39</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-hash">8f12905</div>
+            <div class="timeline-msg">Add puppets-style debate analysis comparing team vs claude branches</div>
+            <div class="timeline-date">2026-03-01 16:12</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-hash">282bca0</div>
+            <div class="timeline-msg">Add interactive HTML visualization of branch debate</div>
+            <div class="timeline-date">2026-03-01 17:15</div>
+          </div>
+        </div>
+        <div style="margin-top:1rem;padding:.75rem;background:rgba(59,130,246,.08);border-radius:8px;font-size:.8rem;color:#94a3b8;border:1px solid rgba(59,130,246,.2)">
+          <strong>Note:</strong> The team's entire <code>src/transcript_scrub/</code> codebase was added in a single commit (<code>7dc4924</code>).
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <div class="card-title">Branch Relationship</div>
+      <div style="font-size:.85rem;color:#94a3b8;line-height:1.8">
+        <div>The <code style="color:#f97316">claude</code> branch was merged into <code>main</code> first (PR #1).</div>
+        <div>The <code style="color:#3b82f6">team</code> branch includes all of main's content (including claude's code) PLUS adds <code>src/transcript_scrub/</code> and <code>tests/</code>.</div>
+        <div>Both branches share the same base repository.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. DIMENSIONS GRID -->
+<div class="sep"></div>
+<section class="section" id="dimensions">
+  <div class="container">
+    <h2 class="section-title"><span class="section-num">08</span> Dimensions Grid &mdash; Full Summary</h2>
+    <p style="color:#64748b;font-size:.8rem;margin-bottom:1rem">26 dimensions measured across both branches. Color-coded deltas show direction of difference.</p>
+    <div class="scroll-hint">Scroll horizontally to see full table &rarr;</div>
+    <div class="table-wrap">
+      <table class="data-table" id="dim-table">
+        <thead>
+          <tr>
+            <th style="min-width:220px">Dimension</th>
+            <th style="text-align:right;min-width:120px;color:#f97316">claude</th>
+            <th style="text-align:right;min-width:120px;color:#3b82f6">team</th>
+            <th style="text-align:right;min-width:140px">Delta</th>
+          </tr>
+        </thead>
+        <tbody id="dim-body"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;justify-content:center;gap:2rem;margin-top:1rem;font-size:.75rem;color:#64748b">
+      <span><span style="color:#3b82f6">&#9632;</span> team leads: <strong id="team-lead-count">0</strong></span>
+      <span><span style="color:#f97316">&#9632;</span> claude leads: <strong id="claude-lead-count">0</strong></span>
+      <span><span style="color:#64748b">&#9632;</span> equal/na: <strong id="equal-count">0</strong></span>
+    </div>
+  </div>
+</section>
+
+<footer style="text-align:center;padding:2rem;color:#475569;font-size:.75rem;border-top:1px solid #1e293b">
+  SHOWBOAT Evidence Report &mdash; Generated 2026-03-03 &mdash; "The evidence speaks for itself."
+</footer>
+
+<script>
+// Dimensions data
+const dimensions = [
+  {dim:'Source files', claude:'5', team:'22', delta:'team +17', dir:'team'},
+  {dim:'Source lines', claude:'966', team:'2,953', delta:'team +1,987', dir:'team'},
+  {dim:'Test files', claude:'1', team:'14', delta:'team +13', dir:'team'},
+  {dim:'Test lines', claude:'236', team:'2,594', delta:'team +2,358', dir:'team'},
+  {dim:'Test functions', claude:'30', team:'257', delta:'team +227', dir:'team'},
+  {dim:'Tests passing', claude:'0/30 (SyntaxError)', team:'257/257', delta:'team +257', dir:'team'},
+  {dim:'Functions defined', claude:'55', team:'107', delta:'team +52', dir:'team'},
+  {dim:'Classes defined', claude:'11', team:'22', delta:'team +11', dir:'team'},
+  {dim:'Detection patterns (regex)', claude:'40', team:'41', delta:'team +1', dir:'team'},
+  {dim:'Named API key patterns', claude:'21', team:'13', delta:'claude +8', dir:'claude'},
+  {dim:'PII pattern types', claude:'3', team:'6', delta:'team +3', dir:'team'},
+  {dim:'Network pattern types', claude:'3', team:'6', delta:'team +3', dir:'team'},
+  {dim:'Runtime dependencies', claude:'1', team:'4', delta:'team +3', dir:'team'},
+  {dim:'Sub-packages', claude:'0', team:'4', delta:'team +4', dir:'team'},
+  {dim:'Data model classes', claude:'1', team:'8', delta:'team +7', dir:'team'},
+  {dim:'Parser formats', claude:'1 (JSONL)', team:'2 (JSONL + JSON web)', delta:'team +1', dir:'team'},
+  {dim:'Interactive mode', claude:'No', team:'Yes', delta:'team only', dir:'team'},
+  {dim:'Allowlists', claude:'No', team:'Yes', delta:'team only', dir:'team'},
+  {dim:'Confidence levels', claude:'No', team:'Yes', delta:'team only', dir:'team'},
+  {dim:'Rich terminal output', claude:'No', team:'Yes', delta:'team only', dir:'team'},
+  {dim:'Pluggable registry', claude:'No', team:'Yes', delta:'team only', dir:'team'},
+  {dim:'Multi-file CLI', claude:'Yes', team:'No', delta:'claude only', dir:'claude'},
+  {dim:'Package metadata', claude:'Yes', team:'No', delta:'claude only', dir:'claude'},
+  {dim:'Research docs', claude:'Yes', team:'No', delta:'claude only', dir:'claude'},
+  {dim:'Commits (code only)', claude:'5', team:'1', delta:'claude +4', dir:'claude'},
+];
+
+const tbody = document.getElementById('dim-body');
+let teamCount=0, claudeCount=0, equalCount=0;
+dimensions.forEach(d => {
+  const tr = document.createElement('tr');
+  let deltaClass = 'delta-zero';
+  if (d.dir === 'team') { deltaClass = 'delta-pos'; teamCount++; }
+  else if (d.dir === 'claude') { deltaClass = 'delta-feat'; claudeCount++; }
+  else equalCount++;
+  tr.innerHTML = `<td><strong>${d.dim}</strong></td><td style="text-align:right">${d.claude}</td><td style="text-align:right">${d.team}</td><td style="text-align:right" class="${deltaClass}"><strong>${d.delta}</strong></td>`;
+  tbody.appendChild(tr);
+});
+document.getElementById('team-lead-count').textContent = teamCount;
+document.getElementById('claude-lead-count').textContent = claudeCount;
+document.getElementById('equal-count').textContent = equalCount;
+
+// Animated counters
+function animateCounters() {
+  const counters = document.querySelectorAll('.counter[data-target]');
+  counters.forEach(el => {
+    const target = parseInt(el.dataset.target);
+    const duration = 1500;
+    const step = Math.max(1, Math.floor(target / 60));
+    let current = 0;
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+      }
+      el.textContent = current.toLocaleString();
+    }, duration / 60);
+  });
+}
+
+// Animate bars
+function animateBars() {
+  document.querySelectorAll('.bar-fill[data-width]').forEach(bar => {
+    setTimeout(() => { bar.style.width = bar.dataset.width; }, 300);
+  });
+}
+
+// Scroll navigation
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// Active nav on scroll
+const sections = ['collection','metrics','tests','patterns','deps','features','commits','dimensions'];
+const navBtns = document.querySelectorAll('.nav-btn');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top < 200) current = id;
+  });
+  navBtns.forEach((btn, i) => {
+    btn.classList.toggle('active', sections[i] === current);
+  });
+});
+
+// Intersection observer for counters
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      animateCounters();
+      animateBars();
+      observer.disconnect();
+    }
+  });
+}, { threshold: 0.2 });
+observer.observe(document.getElementById('metrics'));
+</script>
+</body>
+</html>

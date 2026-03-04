@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Spectacle Showdown</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0a0a1a;
+  --card: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.08);
+  --text: #e8e8f0;
+  --muted: #8888aa;
+  --cyan: #00e5ff;
+  --purple: #b388ff;
+  --green: #00e676;
+  --orange: #ff9100;
+  --red: #ff5252;
+  --reveal-duration: 0.8s;
+}
+
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- SLIDE BASE ---- */
+.slide {
+  min-height: 100vh;
+  scroll-snap-align: start;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 40px;
+  overflow: hidden;
+}
+
+.slide::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(179,136,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ---- ANIMATIONS ---- */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(0,229,255,0.3); }
+  50% { box-shadow: 0 0 40px rgba(0,229,255,0.6); }
+}
+
+@keyframes barGrow {
+  from { width: 0; }
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink {
+  50% { border-color: transparent; }
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(10px); }
+}
+
+@keyframes revealLine {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { text-shadow: 0 0 20px rgba(0,229,255,0.5), 0 0 40px rgba(0,229,255,0.3); }
+  50% { text-shadow: 0 0 30px rgba(0,229,255,0.8), 0 0 60px rgba(0,229,255,0.5), 0 0 80px rgba(0,229,255,0.3); }
+}
+
+@keyframes dramaPause {
+  0%, 80% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes strikeReveal {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+
+/* ---- FRAGMENT REVEAL ---- */
+.fragment {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity var(--reveal-duration) ease, transform var(--reveal-duration) ease;
+}
+
+.fragment.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fragment.delay-1 { transition-delay: 0.2s; }
+.fragment.delay-2 { transition-delay: 0.4s; }
+.fragment.delay-3 { transition-delay: 0.6s; }
+.fragment.delay-4 { transition-delay: 0.8s; }
+.fragment.delay-5 { transition-delay: 1.0s; }
+.fragment.delay-6 { transition-delay: 1.2s; }
+.fragment.delay-7 { transition-delay: 1.4s; }
+.fragment.delay-8 { transition-delay: 1.6s; }
+
+/* ---- GRADIENT TEXT ---- */
+.gradient-text {
+  background: linear-gradient(135deg, #00e5ff, #00e676, #b388ff, #ff9100);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 6s ease infinite;
+}
+
+/* ---- PROGRESS DOTS ---- */
+#progress {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1000;
+}
+
+.progress-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.progress-dot.active {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(0,229,255,0.5);
+}
+
+.progress-dot:hover {
+  border-color: var(--cyan);
+}
+
+/* ======================================
+   SLIDE 1 - THE HOOK
+   ====================================== */
+#hook {
+  text-align: center;
+  justify-content: center;
+}
+
+#hook .subtitle {
+  font-size: 1.1rem;
+  color: var(--muted);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+}
+
+#hook .main-title {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  max-width: 900px;
+  margin-bottom: 30px;
+}
+
+#hook .tagline {
+  font-size: 1.3rem;
+  color: var(--muted);
+  font-weight: 300;
+  max-width: 600px;
+  margin-bottom: 60px;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  animation: scrollBounce 2s ease infinite;
+}
+
+.scroll-indicator svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--muted);
+}
+
+/* ======================================
+   SLIDE 2 - THE SPEC
+   ====================================== */
+#spec {
+  text-align: center;
+}
+
+#spec .section-label {
+  font-size: 0.85rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 16px;
+}
+
+#spec h2 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 800;
+  margin-bottom: 40px;
+}
+
+.secret-examples {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  max-width: 900px;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.secret-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: left;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.secret-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+.secret-card .label {
+  font-size: 0.75rem;
+  color: var(--red);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.secret-card .leaked {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: var(--red);
+  opacity: 0.8;
+  margin-bottom: 6px;
+  word-break: break-all;
+}
+
+.secret-card .redacted {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: var(--green);
+  word-break: break-all;
+}
+
+.spec-quote {
+  font-size: 1.15rem;
+  color: var(--muted);
+  max-width: 700px;
+  font-style: italic;
+}
+
+.spec-quote strong {
+  color: var(--text);
+}
+
+/* ======================================
+   SLIDE 3 - THE CONTENDERS
+   ====================================== */
+#contenders {
+  padding: 40px;
+}
+
+#contenders .section-label {
+  font-size: 0.85rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+#contenders h2 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 800;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+.contenders-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  max-width: 1100px;
+  width: 100%;
+}
+
+.contender-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contender-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+
+.contender-card.claude {
+  border-top: 3px solid var(--cyan);
+}
+
+.contender-card.team {
+  border-top: 3px solid var(--purple);
+}
+
+.contender-card .badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.contender-card.claude .badge {
+  background: rgba(0,229,255,0.12);
+  color: var(--cyan);
+}
+
+.contender-card.team .badge {
+  background: rgba(179,136,255,0.12);
+  color: var(--purple);
+}
+
+.contender-card h3 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.contender-card.claude h3 { color: var(--cyan); }
+.contender-card.team h3 { color: var(--purple); }
+
+.contender-card .description {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+  line-height: 1.7;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.stat-row:last-child { border-bottom: none; }
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.contender-card.claude .stat-value { color: var(--cyan); }
+.contender-card.team .stat-value { color: var(--purple); }
+
+.philosophy {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 10px;
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.contender-card.claude .philosophy {
+  background: rgba(0,229,255,0.06);
+  color: var(--cyan);
+}
+
+.contender-card.team .philosophy {
+  background: rgba(179,136,255,0.06);
+  color: var(--purple);
+}
+
+/* ======================================
+   SLIDE 4 - THE NUMBERS
+   ====================================== */
+#numbers {
+  padding: 40px 20px;
+}
+
+#numbers .section-label {
+  font-size: 0.85rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+#numbers h2 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 800;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.comparison-table {
+  max-width: 1000px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 14px 20px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.comparison-table thead th {
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  padding-bottom: 16px;
+}
+
+.comparison-table thead th:nth-child(2) { color: var(--cyan); }
+.comparison-table thead th:nth-child(3) { color: var(--purple); }
+
+.comparison-table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.comparison-table tbody tr.row-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.comparison-table tbody tr:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.comparison-table td:first-child {
+  text-align: left;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.comparison-table td:nth-child(2) { color: rgba(0,229,255,0.8); }
+.comparison-table td:nth-child(3) { color: rgba(179,136,255,0.8); }
+
+.edge-claude {
+  color: var(--cyan) !important;
+  font-weight: 700;
+}
+
+.edge-team {
+  color: var(--purple) !important;
+  font-weight: 700;
+}
+
+.edge-neutral {
+  color: var(--muted) !important;
+}
+
+/* ======================================
+   SLIDE 5 - CROSS-EXAMINATION
+   ====================================== */
+#cross {
+  padding: 40px 20px;
+  align-items: center;
+}
+
+#cross .section-label {
+  font-size: 0.85rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+#cross h2 {
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.cross-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  max-width: 1100px;
+  width: 100%;
+}
+
+.cross-column h3 {
+  font-size: 1rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid;
+  text-align: center;
+}
+
+.cross-column.against-claude h3 {
+  color: var(--cyan);
+  border-color: rgba(0,229,255,0.3);
+}
+
+.cross-column.against-team h3 {
+  color: var(--purple);
+  border-color: rgba(179,136,255,0.3);
+}
+
+.revelation {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.revelation:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.revelation-header {
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.revelation-header:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.revelation-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--red);
+}
+
+.revelation-toggle {
+  font-size: 1.2rem;
+  color: var(--muted);
+  transition: transform 0.3s ease;
+}
+
+.revelation.open .revelation-toggle {
+  transform: rotate(45deg);
+}
+
+.revelation-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+}
+
+.revelation.open .revelation-body {
+  max-height: 400px;
+  padding: 0 20px 16px 20px;
+}
+
+.revelation-body p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* ======================================
+   SLIDE 6 - THE VERDICT
+   ====================================== */
+#verdict {
+  text-align: center;
+}
+
+#verdict .section-label {
+  font-size: 0.85rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 16px;
+}
+
+.verdict-stage {
+  opacity: 0;
+  transition: opacity 1s ease;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.verdict-stage.verdict-active {
+  opacity: 1;
+  position: relative;
+}
+
+.verdict-neither {
+  font-size: clamp(1.5rem, 3.5vw, 2.8rem);
+  font-weight: 800;
+  color: var(--red);
+  max-width: 700px;
+}
+
+.verdict-but {
+  font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  color: var(--muted);
+  font-style: italic;
+  max-width: 600px;
+}
+
+.verdict-winner {
+  max-width: 800px;
+}
+
+.verdict-winner h2 {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 900;
+  color: var(--purple);
+  margin-bottom: 20px;
+  animation: glowPulse 3s ease infinite;
+  text-shadow: 0 0 20px rgba(179,136,255,0.5), 0 0 40px rgba(179,136,255,0.3);
+}
+
+.verdict-reason {
+  background: rgba(179,136,255,0.08);
+  border: 1px solid rgba(179,136,255,0.2);
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 700px;
+  margin-top: 30px;
+}
+
+.verdict-reason blockquote {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text);
+  font-style: italic;
+}
+
+.verdict-reason blockquote strong {
+  color: var(--purple);
+}
+
+/* ======================================
+   SLIDE 7 - LESSONS
+   ====================================== */
+#lessons {
+  padding: 40px 20px;
+}
+
+#lessons .section-label {
+  font-size: 0.85rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+#lessons h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.lessons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 1000px;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.lesson-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lesson-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+.lesson-card .scenario {
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.lesson-card .recommendation {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.lesson-card.rec-claude .recommendation { color: var(--cyan); }
+.lesson-card.rec-team .recommendation { color: var(--purple); }
+.lesson-card.rec-merge .recommendation {
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.lesson-card .detail {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.meta-lesson {
+  max-width: 800px;
+  text-align: center;
+  padding: 30px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.meta-lesson p {
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: var(--muted);
+}
+
+.meta-lesson p strong {
+  color: var(--text);
+}
+
+.meta-lesson .closing {
+  margin-top: 20px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.meta-lesson .closing .gradient-text {
+  font-size: 1.2rem;
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 768px) {
+  .slide { padding: 40px 20px; }
+  .contenders-grid { grid-template-columns: 1fr; }
+  .cross-grid { grid-template-columns: 1fr; }
+  .lessons-grid { grid-template-columns: 1fr; }
+  .comparison-table th,
+  .comparison-table td { padding: 10px 8px; font-size: 0.8rem; }
+  #progress { right: 10px; }
+  .progress-dot { width: 8px; height: 8px; }
+}
+
+@media (max-width: 480px) {
+  .secret-examples { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS DOTS -->
+<nav id="progress"></nav>
+
+<!-- ======= SLIDE 1: THE HOOK ======= -->
+<section id="hook" class="slide">
+  <div class="fragment subtitle">The Spectacle Showdown</div>
+  <h1 class="fragment delay-1 main-title gradient-text">Two Branches Enter.<br>One Spec.<br>Who Builds It Best?</h1>
+  <p class="fragment delay-2 tagline">A single specification. Two builders. Radically different machines. Tonight we tear them both open.</p>
+  <div class="scroll-indicator fragment delay-4">
+    <span>Scroll</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+      <path d="M12 5v14M5 12l7 7 7-7"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ======= SLIDE 2: THE SPEC ======= -->
+<section id="spec" class="slide">
+  <div class="fragment section-label">Act I</div>
+  <h2 class="fragment delay-1">What Lurks in Your Transcripts</h2>
+  <div class="secret-examples">
+    <div class="secret-card fragment delay-2">
+      <div class="label">Anthropic API Key</div>
+      <div class="leaked">sk-ant-api03-xK9mN2pQ7...</div>
+      <div class="redacted">[REDACTED-API-KEY-1]</div>
+    </div>
+    <div class="secret-card fragment delay-3">
+      <div class="label">GitHub Token</div>
+      <div class="leaked">ghp_x7KmN2pRs9vT4wB6...</div>
+      <div class="redacted">[REDACTED-GITHUB-TOKEN-1]</div>
+    </div>
+    <div class="secret-card fragment delay-4">
+      <div class="label">AWS Access Key</div>
+      <div class="leaked">AKIA3EXAMPLEKEY8Z9Q2</div>
+      <div class="redacted">[REDACTED-AWS-KEY-1]</div>
+    </div>
+    <div class="secret-card fragment delay-5">
+      <div class="label">Home Directory</div>
+      <div class="leaked">/Users/jane.doe/Documents/secret-project/</div>
+      <div class="redacted">/Users/[REDACTED]/Documents/[REDACTED]/</div>
+    </div>
+    <div class="secret-card fragment delay-6">
+      <div class="label">Email Address</div>
+      <div class="leaked">jane.doe@company.com</div>
+      <div class="redacted">[REDACTED-EMAIL-1]</div>
+    </div>
+    <div class="secret-card fragment delay-7">
+      <div class="label">PEM Private Key</div>
+      <div class="leaked">-----BEGIN RSA PRIVATE KEY-----</div>
+      <div class="redacted">[REDACTED-PRIVATE-KEY-1]</div>
+    </div>
+  </div>
+  <p class="fragment delay-8 spec-quote"><strong>Simple enough to describe.</strong> Devilishly hard to get right.</p>
+</section>
+
+<!-- ======= SLIDE 3: THE CONTENDERS ======= -->
+<section id="contenders" class="slide">
+  <div class="fragment section-label">Act II</div>
+  <h2 class="fragment delay-1 gradient-text">The Contenders</h2>
+  <div class="contenders-grid">
+    <div class="contender-card claude fragment delay-2">
+      <span class="badge">Solo Build</span>
+      <h3>The Scrappy Underdog</h3>
+      <p class="description">Born from a single developer's pragmatic instinct. No committee, no architecture meetings -- just a developer, a spec, and a keyboard.</p>
+      <div class="stat-row"><span class="stat-label">Source Lines</span><span class="stat-value">966</span></div>
+      <div class="stat-row"><span class="stat-label">Source Files</span><span class="stat-value">4</span></div>
+      <div class="stat-row"><span class="stat-label">Detection Patterns</span><span class="stat-value">39</span></div>
+      <div class="stat-row"><span class="stat-label">Providers Covered</span><span class="stat-value">20+</span></div>
+      <div class="stat-row"><span class="stat-label">Dependencies</span><span class="stat-value">1</span></div>
+      <div class="stat-row"><span class="stat-label">Input Formats</span><span class="stat-value">3</span></div>
+      <div class="philosophy">"Do one thing, do it now, ship it."</div>
+    </div>
+    <div class="contender-card team fragment delay-3">
+      <span class="badge">Team Build</span>
+      <h3>The Engineering Colossus</h3>
+      <p class="description">Built by a coordinated team with production ambitions. A 4-layer pipeline architecture: Parser, Scanner, Redactor, CLI.</p>
+      <div class="stat-row"><span class="stat-label">Source Lines</span><span class="stat-value">2,953</span></div>
+      <div class="stat-row"><span class="stat-label">Source Files</span><span class="stat-value">22</span></div>
+      <div class="stat-row"><span class="stat-label">Tests Passing</span><span class="stat-value">257/257</span></div>
+      <div class="stat-row"><span class="stat-label">Test Speed</span><span class="stat-value">0.18s</span></div>
+      <div class="stat-row"><span class="stat-label">Architecture Layers</span><span class="stat-value">4</span></div>
+      <div class="stat-row"><span class="stat-label">Interactive Review</span><span class="stat-value">Yes</span></div>
+      <div class="philosophy">"Build it right, test it thoroughly, make it maintainable."</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= SLIDE 4: THE NUMBERS ======= -->
+<section id="numbers" class="slide">
+  <div class="fragment section-label">Act III</div>
+  <h2 class="fragment delay-1">The Tale of the Tape</h2>
+  <table class="comparison-table fragment delay-2" id="comparisonTable">
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>Claude Branch</th>
+        <th>Team Branch</th>
+        <th>Edge</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Source lines (src/)</td><td>966</td><td>2,953</td><td class="edge-neutral">--</td></tr>
+      <tr><td>Source files</td><td>4</td><td>22</td><td class="edge-neutral">--</td></tr>
+      <tr><td>Test functions</td><td>30</td><td>257</td><td class="edge-team">TEAM</td></tr>
+      <tr><td>Tests passing</td><td>0/30</td><td>257/257</td><td class="edge-team">TEAM</td></tr>
+      <tr><td>Test execution time</td><td>N/A (broken)</td><td>0.18s</td><td class="edge-team">TEAM</td></tr>
+      <tr><td>Detection patterns</td><td>39</td><td>27</td><td class="edge-claude">CLAUDE</td></tr>
+      <tr><td>Provider coverage</td><td>20+ providers</td><td>12 providers</td><td class="edge-claude">CLAUDE</td></tr>
+      <tr><td>Input formats</td><td>JSONL, JSON, HTML</td><td>JSONL, JSON</td><td class="edge-claude">CLAUDE</td></tr>
+      <tr><td>Dependencies</td><td>1 (click)</td><td>4 (click, rich, ...)</td><td class="edge-claude">CLAUDE</td></tr>
+      <tr><td>CI exit codes</td><td>Yes</td><td>No</td><td class="edge-claude">CLAUDE</td></tr>
+      <tr><td>Stable numbered redactions</td><td>No</td><td>Yes</td><td class="edge-team">TEAM</td></tr>
+      <tr><td>Overlap resolution</td><td>No</td><td>Yes</td><td class="edge-team">TEAM</td></tr>
+      <tr><td>Interactive review mode</td><td>No</td><td>Yes</td><td class="edge-team">TEAM</td></tr>
+      <tr><td>Allowlist system</td><td>Basic</td><td>Smart (RFC-aware)</td><td class="edge-team">TEAM</td></tr>
+      <tr><td>Rich terminal output</td><td>No</td><td>Yes (colored)</td><td class="edge-team">TEAM</td></tr>
+      <tr><td>Round-trip fidelity</td><td>Untested</td><td>Verified</td><td class="edge-team">TEAM</td></tr>
+      <tr><td>Architecture layers</td><td>1 (monolith)</td><td>4 (layered)</td><td class="edge-team">TEAM</td></tr>
+      <tr><td>Config format</td><td>TOML (basic)</td><td>TOML (interactive)</td><td class="edge-team">TEAM</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ======= SLIDE 5: CROSS-EXAMINATION ======= -->
+<section id="cross" class="slide">
+  <div class="fragment section-label">Act IV</div>
+  <h2 class="fragment delay-1">Cross-Examination</h2>
+  <div class="cross-grid">
+    <div class="cross-column against-claude fragment delay-2">
+      <h3>5 Against Claude</h3>
+      <div class="revelation" data-revelation>
+        <div class="revelation-header">
+          <span class="revelation-title">1. The test suite is theater</span>
+          <span class="revelation-toggle">+</span>
+        </div>
+        <div class="revelation-body">
+          <p>30 test functions exist. Zero pass. The tests import from a module path that was refactored but never updated. This is a test suite that has <em>never run green against the current code</em>. In a security tool, untested code is untrustworthy code.</p>
+        </div>
+      </div>
+      <div class="revelation" data-revelation>
+        <div class="revelation-header">
+          <span class="revelation-title">2. All secrets look identical</span>
+          <span class="revelation-toggle">+</span>
+        </div>
+        <div class="revelation-body">
+          <p>Every Anthropic API key becomes <code>sk-ant-***REDACTED***</code>. If your transcript contained three different leaked keys, the scrubbed output gives you no way to tell them apart. For forensic review, this is a critical blind spot.</p>
+        </div>
+      </div>
+      <div class="revelation" data-revelation>
+        <div class="revelation-header">
+          <span class="revelation-title">3. Pattern overlap is a land mine</span>
+          <span class="revelation-toggle">+</span>
+        </div>
+        <div class="revelation-body">
+          <p>The OpenAI pattern matches <em>before</em> the Anthropic pattern can fire. No overlap resolution engine exists. The same string can be partially redacted by one pattern, then mangled by another -- the classic "regex chain of destruction."</p>
+        </div>
+      </div>
+      <div class="revelation" data-revelation>
+        <div class="revelation-header">
+          <span class="revelation-title">4. HTML scrubbing is naive</span>
+          <span class="revelation-toggle">+</span>
+        </div>
+        <div class="revelation-body">
+          <p>The HTML parser splits on <code>&lt;[^&gt;]+&gt;</code> and scrubs both tags and text nodes. Any attribute containing a <code>&gt;</code> character, any inline JavaScript, any CDATA section will break the split and potentially leak secrets.</p>
+        </div>
+      </div>
+      <div class="revelation" data-revelation>
+        <div class="revelation-header">
+          <span class="revelation-title">5. No data model, no contract</span>
+          <span class="revelation-toggle">+</span>
+        </div>
+        <div class="revelation-body">
+          <p>There is no intermediate representation. Raw strings in, scrubbed strings out. The scrubber cannot tell you <em>where</em> in the transcript structure a secret was found. Debugging false positives becomes a manual archaeology exercise.</p>
+        </div>
+      </div>
+    </div>
+    <div class="cross-column against-team fragment delay-3">
+      <h3>5 Against Team</h3>
+      <div class="revelation" data-revelation>
+        <div class="revelation-header">
+          <span class="revelation-title">1. HTML is a foreign language</span>
+          <span class="revelation-toggle">+</span>
+        </div>
+        <div class="revelation-body">
+          <p>The team branch cannot read HTML at all. Its parser registry contains exactly two parsers: JSONL and JSON Web. If someone hands it an HTML transcript export, it throws a <code>ValueError</code>. A format gap real users will hit.</p>
+        </div>
+      </div>
+      <div class="revelation" data-revelation>
+        <div class="revelation-header">
+          <span class="revelation-title">2. Twelve missing provider patterns</span>
+          <span class="revelation-toggle">+</span>
+        </div>
+        <div class="revelation-body">
+          <p>Vercel tokens, Supabase keys, Cloudflare API tokens, Netlify tokens, SendGrid keys, Twilio keys, npm tokens, PyPI tokens, Google API keys -- all detected by claude, all invisible to team. Those missing patterns are real secrets walking through undetected.</p>
+        </div>
+      </div>
+      <div class="revelation" data-revelation>
+        <div class="revelation-header">
+          <span class="revelation-title">3. No CI exit codes</span>
+          <span class="revelation-toggle">+</span>
+        </div>
+        <div class="revelation-body">
+          <p>The CLI always exits 0 whether it found 100 secrets or none. In a CI/CD pipeline, the scan command cannot gate a deployment. For the DevSecOps use case, this is a showstopper.</p>
+        </div>
+      </div>
+      <div class="revelation" data-revelation>
+        <div class="revelation-header">
+          <span class="revelation-title">4. Four dependencies, not one</span>
+          <span class="revelation-toggle">+</span>
+        </div>
+        <div class="revelation-body">
+          <p><code>click</code>, <code>rich</code>, <code>tomli</code>, <code>tomli-w</code>. The Rich dependency alone pulls in a tree of sub-dependencies. For a security-sensitive tool, a minimal dependency surface is a feature. Every dependency is an attack surface.</p>
+        </div>
+      </div>
+      <div class="revelation" data-revelation>
+        <div class="revelation-header">
+          <span class="revelation-title">5. 3x code for the same job</span>
+          <span class="revelation-toggle">+</span>
+        </div>
+        <div class="revelation-body">
+          <p>2,953 lines to do what 966 lines also do. Three times the surface area for bugs, three times the code to audit, three times the maintenance burden. The 4-layer architecture is elegant -- but is it <em>necessary</em> for a regex-and-replace tool?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= SLIDE 6: THE VERDICT ======= -->
+<section id="verdict" class="slide">
+  <div class="fragment section-label">The Verdict</div>
+
+  <div class="verdict-stage verdict-active" id="verdictStage1">
+    <p class="verdict-neither">Neither branch is ready for production.</p>
+  </div>
+
+  <div class="verdict-stage" id="verdictStage2">
+    <p class="verdict-but">But if forced to choose -- and we are forced to choose...</p>
+  </div>
+
+  <div class="verdict-stage" id="verdictStage3">
+    <div class="verdict-winner">
+      <h2>The Team Branch Wins.</h2>
+      <div class="verdict-reason">
+        <blockquote>A tested, architecturally sound codebase with missing features is a <strong>solvable problem</strong>. Taking an untested monolith and retrofitting it with stable numbering, overlap resolution, and round-trip fidelity? That is a <strong>rewrite</strong>.</blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= SLIDE 7: LESSONS ======= -->
+<section id="lessons" class="slide">
+  <div class="fragment section-label">Epilogue</div>
+  <h2 class="fragment delay-1">When to Use What</h2>
+  <div class="lessons-grid">
+    <div class="lesson-card rec-claude fragment delay-2">
+      <div class="scenario">Quick one-off scrub</div>
+      <div class="recommendation">Choose claude</div>
+      <div class="detail">Fix the import path, verify the patterns, and run it. Single-file simplicity -- read the entire codebase in 15 minutes.</div>
+    </div>
+    <div class="lesson-card rec-team fragment delay-3">
+      <div class="scenario">Team workflow / CI pipeline</div>
+      <div class="recommendation">Choose team</div>
+      <div class="detail">Architecture built for this. Swap components without rewriting the pipeline. Stable numbered redactions for code review clarity.</div>
+    </div>
+    <div class="lesson-card rec-team fragment delay-4">
+      <div class="scenario">Security compliance audit</div>
+      <div class="recommendation">Choose team</div>
+      <div class="detail">Overlap resolution and stable numbering are requirements. Auditable trail from original to replacement.</div>
+    </div>
+    <div class="lesson-card rec-merge fragment delay-5">
+      <div class="scenario">Maximum detection breadth</div>
+      <div class="recommendation">Merge both</div>
+      <div class="detail">Claude's 39 patterns in Team's scanner registry. The best catalog meets the most robust engine.</div>
+    </div>
+  </div>
+  <div class="meta-lesson fragment delay-6">
+    <p><strong>Speed without correctness is dangerous.</strong> Correctness without coverage is incomplete. The best tool ships both -- and neither branch has arrived there yet.</p>
+    <p class="closing">But the path from team is shorter, straighter, and paved with <span class="gradient-text">257 green tests</span>.</p>
+  </div>
+</section>
+
+<script>
+(function() {
+  'use strict';
+
+  // ---- SLIDE MANAGEMENT ----
+  const slides = document.querySelectorAll('.slide');
+  const progressContainer = document.getElementById('progress');
+  let currentSlide = 0;
+  let isTransitioning = false;
+  let verdictPhase = 0;
+
+  // Create progress dots
+  slides.forEach((slide, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goToSlide(i));
+    progressContainer.appendChild(dot);
+  });
+
+  function updateProgress(index) {
+    document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+    });
+  }
+
+  function goToSlide(index) {
+    if (index < 0 || index >= slides.length) return;
+    currentSlide = index;
+    slides[index].scrollIntoView({ behavior: 'smooth' });
+    updateProgress(index);
+  }
+
+  // ---- INTERSECTION OBSERVER FOR FRAGMENTS ----
+  const fragmentObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        // Reveal all fragments in this slide
+        const fragments = entry.target.querySelectorAll('.fragment');
+        fragments.forEach(f => f.classList.add('visible'));
+
+        // Update current slide index
+        const idx = Array.from(slides).indexOf(entry.target);
+        if (idx !== -1) {
+          currentSlide = idx;
+          updateProgress(idx);
+        }
+
+        // Animate table rows if numbers slide
+        if (entry.target.id === 'numbers') {
+          animateTableRows();
+        }
+
+        // Start verdict sequence if verdict slide
+        if (entry.target.id === 'verdict') {
+          startVerdictSequence();
+        }
+      }
+    });
+  }, { threshold: 0.4 });
+
+  slides.forEach(slide => fragmentObserver.observe(slide));
+
+  // ---- TABLE ROW ANIMATION ----
+  let tableAnimated = false;
+  function animateTableRows() {
+    if (tableAnimated) return;
+    tableAnimated = true;
+    const rows = document.querySelectorAll('#comparisonTable tbody tr');
+    rows.forEach((row, i) => {
+      setTimeout(() => {
+        row.classList.add('row-visible');
+      }, i * 120);
+    });
+  }
+
+  // ---- VERDICT SEQUENCE ----
+  let verdictStarted = false;
+  function startVerdictSequence() {
+    if (verdictStarted) return;
+    verdictStarted = true;
+    verdictPhase = 0;
+
+    const stage1 = document.getElementById('verdictStage1');
+    const stage2 = document.getElementById('verdictStage2');
+    const stage3 = document.getElementById('verdictStage3');
+
+    // Stage 1 is already visible
+    stage1.classList.add('verdict-active');
+
+    setTimeout(() => {
+      stage1.classList.remove('verdict-active');
+      stage2.classList.add('verdict-active');
+      verdictPhase = 1;
+    }, 2500);
+
+    setTimeout(() => {
+      stage2.classList.remove('verdict-active');
+      stage3.classList.add('verdict-active');
+      verdictPhase = 2;
+    }, 5000);
+  }
+
+  // ---- REVELATION ACCORDIONS ----
+  document.querySelectorAll('[data-revelation]').forEach(rev => {
+    const header = rev.querySelector('.revelation-header');
+    header.addEventListener('click', () => {
+      rev.classList.toggle('open');
+    });
+  });
+
+  // ---- KEYBOARD NAVIGATION ----
+  document.addEventListener('keydown', (e) => {
+    if (isTransitioning) return;
+
+    switch(e.key) {
+      case 'ArrowDown':
+      case 'ArrowRight':
+      case ' ':
+      case 'PageDown':
+        e.preventDefault();
+        if (currentSlide < slides.length - 1) {
+          isTransitioning = true;
+          goToSlide(currentSlide + 1);
+          setTimeout(() => isTransitioning = false, 800);
+        }
+        break;
+      case 'ArrowUp':
+      case 'ArrowLeft':
+      case 'PageUp':
+        e.preventDefault();
+        if (currentSlide > 0) {
+          isTransitioning = true;
+          goToSlide(currentSlide - 1);
+          setTimeout(() => isTransitioning = false, 800);
+        }
+        break;
+      case 'Home':
+        e.preventDefault();
+        goToSlide(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        goToSlide(slides.length - 1);
+        break;
+    }
+  });
+
+  // ---- SCROLL TRACKING ----
+  let scrollTimeout;
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      const scrollPos = window.scrollY + window.innerHeight / 2;
+      slides.forEach((slide, i) => {
+        const top = slide.offsetTop;
+        const bottom = top + slide.offsetHeight;
+        if (scrollPos >= top && scrollPos < bottom) {
+          currentSlide = i;
+          updateProgress(i);
+        }
+      });
+    }, 50);
+  });
+
+  // ---- INITIAL REVEAL ----
+  // Reveal first slide fragments on load
+  setTimeout(() => {
+    const firstSlideFragments = slides[0].querySelectorAll('.fragment');
+    firstSlideFragments.forEach(f => f.classList.add('visible'));
+  }, 100);
+
+})();
+</script>
+</body>
+</html>

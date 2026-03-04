@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE REEF ARENA — Battle for Scrubber Supremacy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-abyss: #0a0e1a;
+  --bg-mid: #0d1525;
+  --bg-upper: #121d33;
+  --kraken: #b388ff;
+  --kraken-dim: rgba(179, 136, 255, 0.3);
+  --kraken-glow: rgba(179, 136, 255, 0.15);
+  --shark: #00e5ff;
+  --shark-dim: rgba(0, 229, 255, 0.3);
+  --shark-glow: rgba(0, 229, 255, 0.15);
+  --text-primary: #e8edf5;
+  --text-secondary: #8899b8;
+  --card-bg: #162038;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --gold: #ffd700;
+  --gold-glow: rgba(255, 215, 0, 0.3);
+  --red-accent: #ff4466;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-abyss);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ======================== OCEAN PARTICLES ======================== */
+#ocean-particles {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  animation: float-up linear infinite;
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  10% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+  90% { opacity: 0.1; }
+  100% { transform: translateY(-110vh) translateX(var(--drift)) scale(0.3); opacity: 0; }
+}
+
+/* ======================== BUBBLES ======================== */
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  background: radial-gradient(circle at 30% 30%, rgba(0, 229, 255, 0.08), transparent);
+  animation: bubble-rise linear infinite;
+}
+
+@keyframes bubble-rise {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  5% { opacity: 0.5; }
+  50% { transform: translateY(-55vh) translateX(var(--wobble)) scale(0.9); opacity: 0.35; }
+  100% { transform: translateY(-110vh) translateX(calc(var(--wobble) * -0.5)) scale(0.6); opacity: 0; }
+}
+
+/* ======================== LAYOUT ======================== */
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+section {
+  padding: 80px 0;
+}
+
+/* ======================== TITLE SCREEN ======================== */
+.title-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+.title-pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: fade-in 1s 0.3s forwards;
+}
+
+.title-main {
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  font-weight: 900;
+  letter-spacing: -2px;
+  line-height: 1.05;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--kraken) 0%, #e0c0ff 30%, var(--text-primary) 50%, #b0f0ff 70%, var(--shark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: 0;
+  animation: title-reveal 1.2s 0.6s forwards;
+  filter: drop-shadow(0 0 40px rgba(179, 136, 255, 0.3)) drop-shadow(0 0 80px rgba(0, 229, 255, 0.15));
+}
+
+@keyframes title-reveal {
+  0% { opacity: 0; transform: translateY(30px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.title-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.7rem, 1.5vw, 0.95rem);
+  color: var(--text-secondary);
+  letter-spacing: 3px;
+  margin-top: 12px;
+  opacity: 0;
+  animation: fade-in 1s 1.2s forwards;
+}
+
+.title-tagline {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  font-style: italic;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin-top: 32px;
+  opacity: 0;
+  animation: fade-in 1s 1.6s forwards;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 40px;
+  opacity: 0;
+  animation: fade-in 1s 2.2s forwards, bob 2s 2.2s ease-in-out infinite;
+}
+
+.scroll-indicator span {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-right: 2px solid var(--text-secondary);
+  border-bottom: 2px solid var(--text-secondary);
+  transform: rotate(45deg);
+  opacity: 0.5;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(12px); }
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ======================== ANNOUNCER ======================== */
+.announcer-section {
+  text-align: center;
+  padding: 60px 0 80px;
+}
+
+.announcer-text {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-style: italic;
+  color: var(--text-secondary);
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.8;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+}
+
+.announcer-text.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.announcer-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-style: normal;
+  letter-spacing: 1px;
+}
+
+/* ======================== COMBATANT CARDS ======================== */
+.combatants-section {
+  padding: 40px 0 80px;
+}
+
+.combatants-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.combatants-header h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.combatants-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .combatants-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+
+.combatant-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid var(--card-border);
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+}
+
+.combatant-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.combatant-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+}
+
+.combatant-card.kraken::before {
+  background: linear-gradient(90deg, transparent, var(--kraken), transparent);
+  box-shadow: 0 0 30px var(--kraken-dim);
+}
+
+.combatant-card.shark::before {
+  background: linear-gradient(90deg, transparent, var(--shark), transparent);
+  box-shadow: 0 0 30px var(--shark-dim);
+}
+
+.combatant-card.kraken { box-shadow: 0 0 40px var(--kraken-glow), inset 0 0 40px rgba(179, 136, 255, 0.03); }
+.combatant-card.shark { box-shadow: 0 0 40px var(--shark-glow), inset 0 0 40px rgba(0, 229, 255, 0.03); }
+
+.card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+}
+
+.combatant-card.kraken .card-title { color: var(--kraken); text-shadow: 0 0 20px var(--kraken-dim); }
+.combatant-card.shark .card-title { color: var(--shark); text-shadow: 0 0 20px var(--shark-dim); }
+
+.card-branch {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+/* Stat Bars */
+.stats-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  width: 32px;
+  flex-shrink: 0;
+}
+
+.stat-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  width: 0%;
+  transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.combatant-card.kraken .stat-bar-fill {
+  background: linear-gradient(90deg, var(--kraken), #d4b5ff);
+  box-shadow: 0 0 8px var(--kraken-dim);
+}
+
+.combatant-card.shark .stat-bar-fill {
+  background: linear-gradient(90deg, var(--shark), #80f0ff);
+  box-shadow: 0 0 8px var(--shark-dim);
+}
+
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Loadout */
+.loadout-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--card-border);
+}
+
+.loadout-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.loadout-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.loadout-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Description */
+.card-description {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--card-border);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  font-style: italic;
+}
+
+/* ======================== BATTLE ROUNDS ======================== */
+.round-section {
+  padding: 80px 0;
+  border-top: 1px solid var(--card-border);
+}
+
+.round-header {
+  text-align: center;
+  margin-bottom: 48px;
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  transition: all 0.8s ease;
+}
+
+.round-header.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.round-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.round-title {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--kraken), var(--text-primary), var(--shark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.round-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.round-narrative {
+  max-width: 800px;
+  margin: 0 auto 48px;
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease 0.2s;
+}
+
+.round-narrative.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.round-narrative p {
+  margin-bottom: 20px;
+}
+
+.round-narrative strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.round-narrative em {
+  color: #a0b0cc;
+}
+
+.highlight-kraken { color: var(--kraken) !important; font-weight: 600; }
+.highlight-shark { color: var(--shark) !important; font-weight: 600; }
+
+/* Round Scorecard */
+.round-scorecard {
+  max-width: 500px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 28px 32px;
+  border: 1px solid var(--card-border);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease 0.4s;
+}
+
+.round-scorecard.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scorecard-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.score-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.score-name.kraken-name { color: var(--kraken); }
+.score-name.shark-name { color: var(--shark); }
+
+.score-bar-bg {
+  flex: 1;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  width: 0%;
+  transition: width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.score-bar-fill.kraken-bar {
+  background: linear-gradient(90deg, var(--kraken), #d4b5ff);
+  box-shadow: 0 0 10px var(--kraken-dim);
+}
+
+.score-bar-fill.shark-bar {
+  background: linear-gradient(90deg, var(--shark), #80f0ff);
+  box-shadow: 0 0 10px var(--shark-dim);
+}
+
+.score-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  width: 50px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.round-winner {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--card-border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.round-winner.kraken-win { color: var(--kraken); text-shadow: 0 0 15px var(--kraken-dim); }
+.round-winner.shark-win { color: var(--shark); text-shadow: 0 0 15px var(--shark-dim); }
+
+.winner-note {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--red-accent);
+  letter-spacing: 3px;
+  margin-top: 4px;
+}
+
+/* ======================== FINAL SCORECARD ======================== */
+.final-section {
+  padding: 100px 0;
+  text-align: center;
+}
+
+.final-header {
+  margin-bottom: 60px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+}
+
+.final-header.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.final-header h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, var(--gold), #fff8dc, var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px var(--gold-glow));
+}
+
+.final-table {
+  max-width: 700px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 36px 40px;
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  box-shadow: 0 0 60px rgba(255, 215, 0, 0.05);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease 0.2s;
+}
+
+.final-table.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.final-table-header {
+  display: grid;
+  grid-template-columns: 1fr 100px 100px;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 12px;
+}
+
+.final-table-header span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.fth-round { text-align: left; color: var(--text-secondary); }
+.fth-kraken { text-align: center; color: var(--kraken); }
+.fth-shark { text-align: center; color: var(--shark); }
+
+.final-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 100px;
+  gap: 16px;
+  padding: 12px 0;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.6s ease;
+}
+
+.final-row.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.final-row-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.final-cell {
+  text-align: center;
+  position: relative;
+}
+
+.final-score-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.final-score-bar {
+  height: 4px;
+  border-radius: 2px;
+  margin: 0 auto;
+  width: 0%;
+  transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.final-cell.kraken-cell .final-score-num { color: var(--kraken); }
+.final-cell.kraken-cell .final-score-bar { background: var(--kraken); box-shadow: 0 0 8px var(--kraken-dim); }
+.final-cell.shark-cell .final-score-num { color: var(--shark); }
+.final-cell.shark-cell .final-score-bar { background: var(--shark); box-shadow: 0 0 8px var(--shark-dim); }
+
+.final-cell.winner-cell .final-score-num {
+  text-shadow: 0 0 10px currentColor;
+}
+
+.final-total-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 100px;
+  gap: 16px;
+  padding: 20px 0 0;
+  margin-top: 8px;
+  border-top: 2px solid rgba(255, 215, 0, 0.2);
+  align-items: center;
+  opacity: 0;
+  transition: all 0.8s ease 1.5s;
+}
+
+.final-total-row.visible {
+  opacity: 1;
+}
+
+.final-total-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-align: left;
+}
+
+.final-total-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.6rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.final-total-num.kraken-total { color: var(--kraken); text-shadow: 0 0 15px var(--kraken-dim); }
+.final-total-num.shark-total { color: var(--shark); }
+
+/* ======================== VERDICT ======================== */
+.verdict-section {
+  padding: 80px 0 120px;
+  text-align: center;
+}
+
+.verdict-box {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 60px 40px;
+  background: linear-gradient(135deg, rgba(179, 136, 255, 0.05), rgba(22, 32, 56, 0.8), rgba(179, 136, 255, 0.05));
+  border-radius: 24px;
+  border: 1px solid rgba(179, 136, 255, 0.15);
+  box-shadow: 0 0 80px rgba(179, 136, 255, 0.08), 0 0 160px rgba(179, 136, 255, 0.04);
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 1s ease;
+}
+
+.verdict-box.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.verdict-box::before {
+  content: '';
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  border-radius: 25px;
+  background: linear-gradient(135deg, var(--kraken), transparent 40%, transparent 60%, var(--kraken));
+  z-index: -1;
+  opacity: 0.3;
+  animation: verdict-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes verdict-glow {
+  0% { opacity: 0.15; }
+  100% { opacity: 0.4; }
+}
+
+.trophy {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  animation: pulse-trophy 2s ease-in-out infinite;
+  display: inline-block;
+}
+
+@keyframes pulse-trophy {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--gold-glow)); }
+  50% { transform: scale(1.1); filter: drop-shadow(0 0 25px var(--gold-glow)) drop-shadow(0 0 50px rgba(255, 215, 0, 0.15)); }
+}
+
+.verdict-champion-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 6px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.verdict-champion-name {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 900;
+  color: var(--kraken);
+  text-shadow: 0 0 30px var(--kraken-dim), 0 0 60px rgba(179, 136, 255, 0.15);
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+}
+
+.verdict-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.verdict-score .vs-num {
+  color: var(--kraken);
+  font-size: 1.6rem;
+}
+
+.verdict-score .vs-sep {
+  color: var(--text-secondary);
+  margin: 0 8px;
+}
+
+.verdict-score .vs-num-lose {
+  color: var(--shark);
+  font-size: 1.3rem;
+  opacity: 0.7;
+}
+
+.verdict-text {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  max-width: 560px;
+  margin: 0 auto 32px;
+}
+
+.verdict-text strong {
+  color: var(--text-primary);
+}
+
+.verdict-quote {
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  padding: 20px 0;
+  border-top: 1px solid var(--card-border);
+  margin-top: 20px;
+}
+
+.verdict-quote .quote-text {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.verdict-quote .quote-attr {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* ======================== FUSION SECTION ======================== */
+.fusion-section {
+  max-width: 700px;
+  margin: 0 auto 60px;
+  padding: 32px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--card-border);
+  text-align: left;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease;
+}
+
+.fusion-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fusion-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.fusion-text {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.7;
+}
+
+.fusion-list {
+  list-style: none;
+  padding: 0;
+}
+
+.fusion-list li {
+  padding: 6px 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.fusion-list li::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+.fusion-list li.from-kraken::before { background: var(--kraken); box-shadow: 0 0 6px var(--kraken-dim); }
+.fusion-list li.from-shark::before { background: var(--shark); box-shadow: 0 0 6px var(--shark-dim); }
+
+.fusion-closer {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 16px;
+  font-style: italic;
+}
+
+.fusion-closer strong { color: var(--text-primary); }
+
+/* ======================== FOOTER ======================== */
+.arena-footer {
+  text-align: center;
+  padding: 40px 0 60px;
+  border-top: 1px solid var(--card-border);
+}
+
+.arena-footer p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ======================== NAV ======================== */
+.arena-nav {
+  position: fixed;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.arena-nav.show { opacity: 1; }
+
+.nav-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.nav-dot:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.3); }
+
+.nav-dot.active {
+  background: var(--kraken);
+  box-shadow: 0 0 8px var(--kraken-dim);
+  transform: scale(1.2);
+}
+
+.nav-dot .nav-tooltip {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  background: var(--card-bg);
+  padding: 4px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  border: 1px solid var(--card-border);
+}
+
+.nav-dot:hover .nav-tooltip { opacity: 1; }
+
+@media (max-width: 768px) {
+  .arena-nav { display: none; }
+  .content-wrapper { padding: 0 16px; }
+  .combatant-card { padding: 24px; }
+  .final-table { padding: 24px 20px; }
+  .final-table-header, .final-row, .final-total-row { grid-template-columns: 1fr 70px 70px; gap: 8px; }
+  .verdict-box { padding: 40px 24px; }
+  section { padding: 60px 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- Ocean Particles Container -->
+<div id="ocean-particles"></div>
+
+<!-- Navigation Dots -->
+<nav class="arena-nav" id="arenaNav">
+  <div class="nav-dot" data-target="title"><span class="nav-tooltip">Title</span></div>
+  <div class="nav-dot" data-target="combatants"><span class="nav-tooltip">Combatants</span></div>
+  <div class="nav-dot" data-target="round1"><span class="nav-tooltip">R1: Speed</span></div>
+  <div class="nav-dot" data-target="round2"><span class="nav-tooltip">R2: Power</span></div>
+  <div class="nav-dot" data-target="round3"><span class="nav-tooltip">R3: Defense</span></div>
+  <div class="nav-dot" data-target="round4"><span class="nav-tooltip">R4: Wisdom</span></div>
+  <div class="nav-dot" data-target="round5"><span class="nav-tooltip">R5: Polish</span></div>
+  <div class="nav-dot" data-target="final"><span class="nav-tooltip">Final Score</span></div>
+  <div class="nav-dot" data-target="verdict"><span class="nav-tooltip">Verdict</span></div>
+</nav>
+
+<div class="content-wrapper">
+
+  <!-- ==================== TITLE SCREEN ==================== -->
+  <section class="title-screen" id="title">
+    <div class="title-pre">Where Code Is Tested by Tooth and Tentacle</div>
+    <h1 class="title-main">THE REEF ARENA</h1>
+    <div class="title-sub">Battle for Scrubber Supremacy</div>
+    <p class="title-tagline">"Ladies, gentlemen, and sentient language models -- welcome to the deepest trench in the development ocean."</p>
+    <div class="scroll-indicator"><span></span></div>
+  </section>
+
+  <!-- ==================== ANNOUNCER ==================== -->
+  <section class="announcer-section" id="announcer">
+    <p class="announcer-text" data-animate>
+      <span class="announcer-label">ANNOUNCER:</span> Tonight, two apex predators clash for dominion over the most sacred territory in AI tooling: the transcript scrubber. Secrets will be found. Code will be judged. Only one leaves the arena crowned.
+    </p>
+  </section>
+
+  <!-- ==================== COMBATANTS ==================== -->
+  <section class="combatants-section" id="combatants">
+    <div class="combatants-header">
+      <h2>The Combatants</h2>
+    </div>
+    <div class="combatants-grid">
+
+      <!-- KRAKEN CARD -->
+      <div class="combatant-card kraken" data-animate>
+        <div class="card-icon">&#x1F419;</div>
+        <div class="card-title">THE KRAKEN</div>
+        <div class="card-branch">Team Branch</div>
+
+        <div class="stats-section-label">Combat Stats</div>
+        <div class="stat-row"><span class="stat-label">SPD</span><div class="stat-bar-bg"><div class="stat-bar-fill" data-width="80"></div></div><span class="stat-value">8/10</span></div>
+        <div class="stat-row"><span class="stat-label">PWR</span><div class="stat-bar-bg"><div class="stat-bar-fill" data-width="70"></div></div><span class="stat-value">7/10</span></div>
+        <div class="stat-row"><span class="stat-label">DEF</span><div class="stat-bar-bg"><div class="stat-bar-fill" data-width="100"></div></div><span class="stat-value">10/10</span></div>
+        <div class="stat-row"><span class="stat-label">WIS</span><div class="stat-bar-bg"><div class="stat-bar-fill" data-width="90"></div></div><span class="stat-value">9/10</span></div>
+        <div class="stat-row"><span class="stat-label">EFF</span><div class="stat-bar-bg"><div class="stat-bar-fill" data-width="60"></div></div><span class="stat-value">6/10</span></div>
+        <div class="stat-row"><span class="stat-label">POL</span><div class="stat-bar-bg"><div class="stat-bar-fill" data-width="90"></div></div><span class="stat-value">9/10</span></div>
+
+        <div class="loadout-section">
+          <div class="stats-section-label">Loadout</div>
+          <div class="loadout-row"><span class="loadout-key">Lines of Source</span><span class="loadout-value">2,953</span></div>
+          <div class="loadout-row"><span class="loadout-key">Test Lines</span><span class="loadout-value">2,594</span></div>
+          <div class="loadout-row"><span class="loadout-key">Tests Passing</span><span class="loadout-value">257 / 257</span></div>
+          <div class="loadout-row"><span class="loadout-key">Dependencies</span><span class="loadout-value">4</span></div>
+          <div class="loadout-row"><span class="loadout-key">Patterns</span><span class="loadout-value">~25</span></div>
+        </div>
+
+        <div class="card-description">
+          A colossus of the deep. Eight arms, each one a pipeline stage. Its body is a cathedral of layered architecture -- Parser, Scanner, Redactor, Formatter -- each tentacle knowing its purpose. It moves slowly, deliberately, but when it grips you, it does not let go. Every redaction is numbered. Every overlap is resolved. Every round-trip is verified. It has been tested 257 times and has never once flinched.
+        </div>
+      </div>
+
+      <!-- SHARK CARD -->
+      <div class="combatant-card shark" data-animate>
+        <div class="card-icon">&#x1F988;</div>
+        <div class="card-title">THE REEF SHARK</div>
+        <div class="card-branch">claude/MVP Branch</div>
+
+        <div class="stats-section-label">Combat Stats</div>
+        <div class="stat-row"><span class="stat-label">SPD</span><div class="stat-bar-bg"><div class="stat-bar-fill" data-width="100"></div></div><span class="stat-value">10/10</span></div>
+        <div class="stat-row"><span class="stat-label">PWR</span><div class="stat-bar-bg"><div class="stat-bar-fill" data-width="90"></div></div><span class="stat-value">9/10</span></div>
+        <div class="stat-row"><span class="stat-label">DEF</span><div class="stat-bar-bg"><div class="stat-bar-fill" data-width="10"></div></div><span class="stat-value">1/10</span></div>
+        <div class="stat-row"><span class="stat-label">WIS</span><div class="stat-bar-bg"><div class="stat-bar-fill" data-width="60"></div></div><span class="stat-value">6/10</span></div>
+        <div class="stat-row"><span class="stat-label">EFF</span><div class="stat-bar-bg"><div class="stat-bar-fill" data-width="90"></div></div><span class="stat-value">9/10</span></div>
+        <div class="stat-row"><span class="stat-label">POL</span><div class="stat-bar-bg"><div class="stat-bar-fill" data-width="70"></div></div><span class="stat-value">7/10</span></div>
+
+        <div class="loadout-section">
+          <div class="stats-section-label">Loadout</div>
+          <div class="loadout-row"><span class="loadout-key">Lines of Source</span><span class="loadout-value">966</span></div>
+          <div class="loadout-row"><span class="loadout-key">Test Lines</span><span class="loadout-value">~600</span></div>
+          <div class="loadout-row"><span class="loadout-key">Tests Passing</span><span class="loadout-value">0 / 30</span></div>
+          <div class="loadout-row"><span class="loadout-key">Dependencies</span><span class="loadout-value">1</span></div>
+          <div class="loadout-row"><span class="loadout-key">Patterns</span><span class="loadout-value">39</span></div>
+        </div>
+
+        <div class="card-description">
+          Lean. Brutal. Born yesterday and already hunting. This shark crossed the ocean in 966 lines flat, carrying 39 detection patterns like rows of razor teeth. It reads HTML. It reads JSONL. It reads JSON. One dependency. One <em>click</em>. One kill. But its armor... its armor is paper. Zero tests pass. It is fast because it has not yet learned what can go wrong.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== ROUND 1 ==================== -->
+  <section class="round-section" id="round1">
+    <div class="round-header" data-animate>
+      <div class="round-number">Round 1</div>
+      <h2 class="round-title">SPEED &amp; AGILITY</h2>
+      <div class="round-subtitle">Simplicity, dependencies, install footprint, time-to-value</div>
+    </div>
+    <div class="round-narrative" data-animate>
+      <p><strong>THE BELL RINGS.</strong></p>
+      <p>The <span class="highlight-shark">Reef Shark</span> launches from the coral like a missile. <strong>ONE</strong> dependency. <code>click</code>. That is all. <code>pip install</code> finishes before the <span class="highlight-kraken">Kraken</span> has even unfurled its first tentacle. The Shark's entire source fits in 966 lines -- you could read it on a lunch break. Its flat module structure means no import chains, no layer-hopping, no indirection.</p>
+      <p>The <span class="highlight-kraken">Kraken</span> lumbers forward with <strong>FOUR</strong> dependencies -- <code>click</code>, <code>rich</code>, <code>tomli</code>, <code>tomli-w</code> -- dragging a 2,953-line body through the water. Its 4-layer pipeline is elegant, yes, but elegance has mass.</p>
+      <p><strong>But wait</strong> -- the Kraken's test suite runs in 0.18 seconds. The beast may be large, but its metabolism is efficient. Still. In raw agility? In the sheer violence of simplicity? <span class="highlight-shark">The Shark draws first blood.</span></p>
+    </div>
+    <div class="round-scorecard" data-animate data-kraken="6" data-shark="9" data-winner="shark">
+      <div class="scorecard-title">Round 1 Scorecard</div>
+      <div class="score-row">
+        <span class="score-name kraken-name">KRAKEN</span>
+        <div class="score-bar-bg"><div class="score-bar-fill kraken-bar" data-score="6"></div></div>
+        <span class="score-value" data-count="6">0</span>
+      </div>
+      <div class="score-row">
+        <span class="score-name shark-name">REEF SHARK</span>
+        <div class="score-bar-bg"><div class="score-bar-fill shark-bar" data-score="9"></div></div>
+        <span class="score-value" data-count="9">0</span>
+      </div>
+      <div class="round-winner shark-win">ROUND WINNER: REEF SHARK</div>
+    </div>
+  </section>
+
+  <!-- ==================== ROUND 2 ==================== -->
+  <section class="round-section" id="round2">
+    <div class="round-header" data-animate>
+      <div class="round-number">Round 2</div>
+      <h2 class="round-title">RAW POWER</h2>
+      <div class="round-subtitle">Feature completeness, pattern coverage, format support</div>
+    </div>
+    <div class="round-narrative" data-animate>
+      <p>The <span class="highlight-shark">Reef Shark</span> opens its jaws and the audience <strong>GASPS</strong>. <strong>Thirty-nine detection patterns.</strong> Twenty-plus providers. AWS, GCP, Azure, Stripe, Twilio, SendGrid, Slack, GitHub, GitLab, Datadog, New Relic, PagerDuty. The <span class="highlight-kraken">Kraken</span> musters roughly 25 patterns. In raw pattern count, the Shark has a <strong>56% advantage</strong>.</p>
+      <p>The Shark reads <strong>HTML</strong> transcripts, <strong>JSONL</strong>, and <strong>JSON</strong>. It takes variadic file arguments in one command. The Kraken? JSONL only. No HTML. The Shark also brings <strong>CI integration</strong> with <code>sys.exit(1)</code> on findings.</p>
+      <p>The <span class="highlight-kraken">Kraken</span> retaliates with <strong>stable numbered redactions</strong> and <strong>round-trip fidelity</strong>. But in raw offensive capability -- patterns, formats, CI hooks -- <span class="highlight-shark">the Shark overwhelms.</span></p>
+    </div>
+    <div class="round-scorecard" data-animate data-kraken="6" data-shark="9" data-winner="shark">
+      <div class="scorecard-title">Round 2 Scorecard</div>
+      <div class="score-row">
+        <span class="score-name kraken-name">KRAKEN</span>
+        <div class="score-bar-bg"><div class="score-bar-fill kraken-bar" data-score="6"></div></div>
+        <span class="score-value" data-count="6">0</span>
+      </div>
+      <div class="score-row">
+        <span class="score-name shark-name">REEF SHARK</span>
+        <div class="score-bar-bg"><div class="score-bar-fill shark-bar" data-score="9"></div></div>
+        <span class="score-value" data-count="9">0</span>
+      </div>
+      <div class="round-winner shark-win">ROUND WINNER: REEF SHARK</div>
+    </div>
+  </section>
+
+  <!-- ==================== ROUND 3 ==================== -->
+  <section class="round-section" id="round3">
+    <div class="round-header" data-animate>
+      <div class="round-number">Round 3</div>
+      <h2 class="round-title">DEFENSIVE ARMOR</h2>
+      <div class="round-subtitle">Test coverage, correctness verification, security guarantees</div>
+    </div>
+    <div class="round-narrative" data-animate>
+      <p>This is where the ocean turns <strong style="color: var(--red-accent)">RED</strong>. And not with the Shark's blood.</p>
+      <p>The <span class="highlight-kraken">Kraken</span> has <strong>257 passing tests.</strong> Two hundred. And fifty-seven. Running in 0.18 seconds. Every pipeline stage tested independently. Every edge case probed. Overlap resolution verified. Round-trip validation confirmed. This is not a test suite. This is a <strong>FORTRESS</strong>.</p>
+      <p>The <span class="highlight-shark">Reef Shark</span> has <strong style="color: var(--red-accent)">zero passing tests out of thirty.</strong> ZERO. The tests exist but they are broken. Syntax errors. Missing fixtures. Import failures. The Shark wrote checks it cannot cash.</p>
+      <p>In security tooling -- tooling whose <strong>ENTIRE PURPOSE</strong> is to protect sensitive information -- untested code is not just technical debt. It is a <strong>LIABILITY</strong>. The Kraken checked every lock 257 times.</p>
+      <p><span class="highlight-kraken">The Kraken does not just win this round. It ANNIHILATES.</span></p>
+    </div>
+    <div class="round-scorecard" data-animate data-kraken="10" data-shark="1" data-winner="kraken">
+      <div class="scorecard-title">Round 3 Scorecard</div>
+      <div class="score-row">
+        <span class="score-name kraken-name">KRAKEN</span>
+        <div class="score-bar-bg"><div class="score-bar-fill kraken-bar" data-score="10"></div></div>
+        <span class="score-value" data-count="10">0</span>
+      </div>
+      <div class="score-row">
+        <span class="score-name shark-name">REEF SHARK</span>
+        <div class="score-bar-bg"><div class="score-bar-fill shark-bar" data-score="1"></div></div>
+        <span class="score-value" data-count="1">0</span>
+      </div>
+      <div class="round-winner kraken-win">ROUND WINNER: KRAKEN <span class="winner-note">(DEVASTATING)</span></div>
+    </div>
+  </section>
+
+  <!-- ==================== ROUND 4 ==================== -->
+  <section class="round-section" id="round4">
+    <div class="round-header" data-animate>
+      <div class="round-number">Round 4</div>
+      <h2 class="round-title">WISDOM</h2>
+      <div class="round-subtitle">Architecture, extensibility, overlap resolution, design foresight</div>
+    </div>
+    <div class="round-narrative" data-animate>
+      <p>The <span class="highlight-kraken">Kraken</span> rises. This is its domain.</p>
+      <p><strong>Four-layer pipeline: Parser, Scanner, Redactor, Formatter.</strong> Each layer has one job. Each layer can be tested, extended, or replaced independently.</p>
+      <p><strong>Overlap resolution.</strong> When two regex patterns match overlapping spans, the Kraken resolves this intelligently. No double-redact. No corrupted boundaries. No nested <code>[REDACTED-[REDACTED-API-KEY]-TOKEN]</code> abominations.</p>
+      <p><strong>Stable redaction IDs.</strong> <code>[REDACTED-API-KEY-1]</code> is not just a label. It is a <strong>CONTRACT</strong>. The same secret gets the same ID throughout the document.</p>
+      <p>The <span class="highlight-shark">Reef Shark's</span> architecture is flat. No pipeline abstraction. No overlap resolution. No stable IDs. The Shark does earn points for JSON + TOML config support. But minimalism without correctness guarantees is just... <em>incompleteness</em>.</p>
+    </div>
+    <div class="round-scorecard" data-animate data-kraken="9" data-shark="5" data-winner="kraken">
+      <div class="scorecard-title">Round 4 Scorecard</div>
+      <div class="score-row">
+        <span class="score-name kraken-name">KRAKEN</span>
+        <div class="score-bar-bg"><div class="score-bar-fill kraken-bar" data-score="9"></div></div>
+        <span class="score-value" data-count="9">0</span>
+      </div>
+      <div class="score-row">
+        <span class="score-name shark-name">REEF SHARK</span>
+        <div class="score-bar-bg"><div class="score-bar-fill shark-bar" data-score="5"></div></div>
+        <span class="score-value" data-count="5">0</span>
+      </div>
+      <div class="round-winner kraken-win">ROUND WINNER: KRAKEN</div>
+    </div>
+  </section>
+
+  <!-- ==================== ROUND 5 ==================== -->
+  <section class="round-section" id="round5">
+    <div class="round-header" data-animate>
+      <div class="round-number">Round 5</div>
+      <h2 class="round-title">POLISH</h2>
+      <div class="round-subtitle">CLI UX, interactive features, output presentation</div>
+    </div>
+    <div class="round-narrative" data-animate>
+      <p><strong>The final round.</strong> Both creatures are bloodied. The water is murky. The crowd leans forward.</p>
+      <p>The <span class="highlight-kraken">Kraken</span> unveils its secret weapon: <strong>Interactive Review Mode.</strong> Powered by Rich, it renders a full terminal UI where you can step through each detected secret, see it in context with syntax highlighting, and decide: redact or keep. Color-coded categories. Progress indicators. Context windows. The Kraken treats its operator like a professional.</p>
+      <p>The <span class="highlight-shark">Reef Shark's</span> CLI is <code>click</code>-powered and clean. Variadic file arguments are a genuine UX win. CI exit codes mean it plays well with automation. But no interactive mode. No Rich rendering. No step-through review.</p>
+      <p>The <span class="highlight-shark">Shark's</span> variadic args and CI integration are sharp. But the <span class="highlight-kraken">Kraken's interactive review</span> is a whole different weight class of polish.</p>
+    </div>
+    <div class="round-scorecard" data-animate data-kraken="9" data-shark="7" data-winner="kraken">
+      <div class="scorecard-title">Round 5 Scorecard</div>
+      <div class="score-row">
+        <span class="score-name kraken-name">KRAKEN</span>
+        <div class="score-bar-bg"><div class="score-bar-fill kraken-bar" data-score="9"></div></div>
+        <span class="score-value" data-count="9">0</span>
+      </div>
+      <div class="score-row">
+        <span class="score-name shark-name">REEF SHARK</span>
+        <div class="score-bar-bg"><div class="score-bar-fill shark-bar" data-score="7"></div></div>
+        <span class="score-value" data-count="7">0</span>
+      </div>
+      <div class="round-winner kraken-win">ROUND WINNER: KRAKEN</div>
+    </div>
+  </section>
+
+  <!-- ==================== FINAL SCORECARD ==================== -->
+  <section class="final-section" id="final">
+    <div class="final-header" data-animate>
+      <h2>Final Scorecard</h2>
+    </div>
+    <div class="final-table" data-animate>
+      <div class="final-table-header">
+        <span class="fth-round">ROUND</span>
+        <span class="fth-kraken">KRAKEN</span>
+        <span class="fth-shark">SHARK</span>
+      </div>
+
+      <div class="final-row" data-animate data-delay="0">
+        <span class="final-row-name">1. Speed &amp; Agility</span>
+        <div class="final-cell kraken-cell"><span class="final-score-num" data-count="6">0</span><div class="final-score-bar" data-width="60"></div></div>
+        <div class="final-cell shark-cell winner-cell"><span class="final-score-num" data-count="9">0</span><div class="final-score-bar" data-width="90"></div></div>
+      </div>
+      <div class="final-row" data-animate data-delay="150">
+        <span class="final-row-name">2. Raw Power</span>
+        <div class="final-cell kraken-cell"><span class="final-score-num" data-count="6">0</span><div class="final-score-bar" data-width="60"></div></div>
+        <div class="final-cell shark-cell winner-cell"><span class="final-score-num" data-count="9">0</span><div class="final-score-bar" data-width="90"></div></div>
+      </div>
+      <div class="final-row" data-animate data-delay="300">
+        <span class="final-row-name">3. Defensive Armor</span>
+        <div class="final-cell kraken-cell winner-cell"><span class="final-score-num" data-count="10">0</span><div class="final-score-bar" data-width="100"></div></div>
+        <div class="final-cell shark-cell"><span class="final-score-num" data-count="1">0</span><div class="final-score-bar" data-width="10"></div></div>
+      </div>
+      <div class="final-row" data-animate data-delay="450">
+        <span class="final-row-name">4. Wisdom</span>
+        <div class="final-cell kraken-cell winner-cell"><span class="final-score-num" data-count="9">0</span><div class="final-score-bar" data-width="90"></div></div>
+        <div class="final-cell shark-cell"><span class="final-score-num" data-count="5">0</span><div class="final-score-bar" data-width="50"></div></div>
+      </div>
+      <div class="final-row" data-animate data-delay="600">
+        <span class="final-row-name">5. Polish</span>
+        <div class="final-cell kraken-cell winner-cell"><span class="final-score-num" data-count="9">0</span><div class="final-score-bar" data-width="90"></div></div>
+        <div class="final-cell shark-cell"><span class="final-score-num" data-count="7">0</span><div class="final-score-bar" data-width="70"></div></div>
+      </div>
+
+      <div class="final-total-row" data-animate>
+        <span class="final-total-label">TOTAL</span>
+        <span class="final-total-num kraken-total" data-count="40">0</span>
+        <span class="final-total-num shark-total" data-count="31">0</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== VERDICT ==================== -->
+  <section class="verdict-section" id="verdict">
+    <div class="verdict-box" data-animate>
+      <div class="trophy">&#x1F451;</div>
+      <div class="verdict-champion-label">Champion</div>
+      <div class="verdict-champion-name">THE KRAKEN</div>
+      <div class="verdict-score">
+        <span class="vs-num">40</span><span class="vs-sep">vs</span><span class="vs-num-lose">31</span>
+      </div>
+      <div class="verdict-text">
+        The Reef Shark is a marvel of speed and ambition. In 966 lines, it delivered more patterns, more formats, and fewer dependencies than the Kraken manages in three times the code.
+        <strong>But this is not a hackathon. This is a security tool.</strong>
+      </div>
+      <div class="verdict-text">
+        The Shark has features. The Kraken has <strong>GUARANTEES</strong>. Adding features to a tested system is engineering. Adding tests to an untested system is archaeology.
+      </div>
+      <div class="verdict-quote">
+        <span class="quote-text">"In the deep, correctness is the only currency."</span>
+        <span class="quote-attr">-- The Reef Arena</span>
+      </div>
+    </div>
+
+    <!-- FUSION -->
+    <div class="fusion-section" data-animate style="margin-top: 60px;">
+      <div class="fusion-title">The Path Forward: Fusion</div>
+      <div class="fusion-text">The ultimate apex predator would combine both creatures:</div>
+      <ul class="fusion-list">
+        <li class="from-kraken">The Kraken's 4-layer pipeline and 257-test fortress</li>
+        <li class="from-shark">The Shark's 39 patterns and 12 additional providers</li>
+        <li class="from-shark">The Shark's HTML format support</li>
+        <li class="from-shark">The Shark's variadic file arguments</li>
+        <li class="from-shark">The Shark's CI exit codes</li>
+        <li class="from-kraken">The Kraken's interactive review mode</li>
+        <li class="from-kraken">The Kraken's stable redaction IDs and overlap resolution</li>
+      </ul>
+      <div class="fusion-closer">The Kraken swims on. The Shark's patterns will be harvested. <strong>The arena falls silent.</strong></div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="arena-footer">
+    <p>Battle adjudicated by ARENA -- the Reef Arena Combat System. All stats sourced from repository analysis. No creatures were harmed in the making of this document, though several regex patterns were found to be untested and should feel deeply ashamed.</p>
+  </footer>
+
+</div>
+
+<script>
+// ======================== OCEAN PARTICLES ========================
+(function createParticles() {
+  const container = document.getElementById('ocean-particles');
+  const count = 60;
+  const colors = [
+    'rgba(179, 136, 255, 0.4)',
+    'rgba(0, 229, 255, 0.4)',
+    'rgba(179, 136, 255, 0.2)',
+    'rgba(0, 229, 255, 0.2)',
+    'rgba(232, 237, 245, 0.15)'
+  ];
+
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    const isBubble = Math.random() > 0.6;
+    p.className = isBubble ? 'bubble' : 'particle';
+
+    const size = isBubble ? (4 + Math.random() * 12) : (2 + Math.random() * 4);
+    const left = Math.random() * 100;
+    const delay = Math.random() * 20;
+    const duration = 12 + Math.random() * 18;
+    const drift = (Math.random() - 0.5) * 80;
+    const wobble = (Math.random() - 0.5) * 40;
+
+    p.style.cssText = `
+      width: ${size}px;
+      height: ${size}px;
+      left: ${left}%;
+      bottom: -${size}px;
+      animation-delay: ${delay}s;
+      animation-duration: ${duration}s;
+      --drift: ${drift}px;
+      --wobble: ${wobble}px;
+    `;
+
+    if (!isBubble) {
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    container.appendChild(p);
+  }
+})();
+
+// ======================== INTERSECTION OBSERVER ========================
+const observerOptions = { threshold: 0.15, rootMargin: '0px 0px -50px 0px' };
+
+const animateObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const delay = el.dataset.delay ? parseInt(el.dataset.delay) : 0;
+      setTimeout(() => {
+        el.classList.add('visible');
+        // Trigger stat bars
+        el.querySelectorAll('.stat-bar-fill').forEach(bar => {
+          bar.style.width = bar.dataset.width + '%';
+        });
+        // Trigger score bars
+        el.querySelectorAll('.score-bar-fill').forEach(bar => {
+          bar.style.width = (bar.dataset.score * 10) + '%';
+        });
+        // Trigger final score bars
+        el.querySelectorAll('.final-score-bar').forEach(bar => {
+          bar.style.width = bar.dataset.width + '%';
+        });
+        // Count up numbers
+        el.querySelectorAll('[data-count]').forEach(num => {
+          animateCount(num, parseInt(num.dataset.count));
+        });
+      }, delay);
+      animateObserver.unobserve(el);
+    }
+  });
+}, observerOptions);
+
+document.querySelectorAll('[data-animate]').forEach(el => {
+  animateObserver.observe(el);
+});
+
+// ======================== COUNT ANIMATION ========================
+function animateCount(el, target) {
+  const duration = 1200;
+  const start = performance.now();
+  const initial = 0;
+
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(initial + (target - initial) * eased);
+    el.textContent = current;
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// ======================== NAVIGATION ========================
+const nav = document.getElementById('arenaNav');
+const sections = ['title', 'combatants', 'round1', 'round2', 'round3', 'round4', 'round5', 'final', 'verdict'];
+const dots = nav.querySelectorAll('.nav-dot');
+
+// Show nav after scrolling past title
+const navObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) {
+      nav.classList.add('show');
+    } else {
+      nav.classList.remove('show');
+    }
+  });
+}, { threshold: 0.5 });
+
+navObserver.observe(document.getElementById('title'));
+
+// Active section tracking
+const sectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = sections.indexOf(entry.target.id);
+      dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    }
+  });
+}, { threshold: 0.3 });
+
+sections.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) sectionObserver.observe(el);
+});
+
+// Click to scroll
+dots.forEach((dot, i) => {
+  dot.addEventListener('click', () => {
+    const target = document.getElementById(sections[i]);
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+
+</body>
+</html>

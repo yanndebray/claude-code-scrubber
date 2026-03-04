@@ -10,12 +10,12 @@ Scrub API keys, secrets, and personal information from Claude Code transcripts b
 - [Final Verdict](debate/debate-final-verdict.md)
 - [Team Report](debate/debate-team-report.md) | [Team Cross-Review](debate/debate-team-crossreview.md)
 - [Claude Report](debate/debate-claude-report.md) | [Claude Cross-Review](debate/debate-claude-crossreview.md)
-- [Interactive Debate Visualization](debate/debate.html)
-- [Arena Battle](debate/arena-battle.md) | [Arena Battle (HTML)](debate/arena-battle.html)
-- [Court Proceedings](debate/court-proceedings.md) | [Court Proceedings (HTML)](debate/court-proceedings.html)
-- [Multiverse Analysis](debate/multiverse-analysis.md) | [Multiverse Analysis (HTML)](debate/multiverse-analysis.html)
-- [Showboat Evidence](debate/showboat-evidence.md) | [Showboat Evidence (HTML)](debate/showboat-evidence.html)
-- [Spectacle Showdown](debate/spectacle-showdown.md) | [Spectacle Showdown (HTML)](debate/spectacle-showdown.html)
+- [Interactive Debate Visualization](https://yanndebray.github.io/claude-code-scrubber/debate/debate.html)
+- [Arena Battle](debate/arena-battle.md) | [Arena Battle (HTML)](https://yanndebray.github.io/claude-code-scrubber/debate/arena-battle.html)
+- [Court Proceedings](debate/court-proceedings.md) | [Court Proceedings (HTML)](https://yanndebray.github.io/claude-code-scrubber/debate/court-proceedings.html)
+- [Multiverse Analysis](debate/multiverse-analysis.md) | [Multiverse Analysis (HTML)](https://yanndebray.github.io/claude-code-scrubber/debate/multiverse-analysis.html)
+- [Showboat Evidence](debate/showboat-evidence.md) | [Showboat Evidence (HTML)](https://yanndebray.github.io/claude-code-scrubber/debate/showboat-evidence.html)
+- [Spectacle Showdown](debate/spectacle-showdown.md) | [Spectacle Showdown (HTML)](https://yanndebray.github.io/claude-code-scrubber/debate/spectacle-showdown.html)
 
 ### Research
 - [Sensitive Data Scrubbing Tools Research](research/sensitive-data-scrubbing-tools-research.md)
